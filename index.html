@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pohon Subnetting Interaktif (Iza's Way) - Modul 7 Jaringan Komputer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+            },
+            surface: {
+              DEFAULT: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              hover: '#283548'
+            }
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'Consolas', 'monospace'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b1120;
+      color: #f1f5f9;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .tree-node {
+      cursor: grab;
+      touch-action: none;
+      transition: filter 0.15s ease;
+    }
+    .tree-node:hover {
+      filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.7));
+    }
+    .tree-node.dragging {
+      cursor: grabbing !important;
+      filter: drop-shadow(0 0 18px rgba(14, 165, 233, 0.9));
+    }
+    .tree-edge {
+      pointer-events: none;
+      transition: stroke 0.15s ease;
+    }
+    .pulse-anim {
+      animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(1.08); }
+    }
+    input[type=range] {
+      accent-color: #0ea5e9;
+    }
+    /* Fullscreen specific styling */
+    :fullscreen #tab-tree {
+      height: 100vh !important;
+      width: 100vw !important;
+      border-radius: 0 !important;
+      border: none !important;
+      background-color: #0b1120 !important;
+      padding: 1.25rem !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#0b1120] text-slate-100 overflow-x-hidden">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-[#0f172a]/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <i data-lucide="git-fork" class="w-6 h-6 text-white rotate-180"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+              Pohon Subnetting <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-medium">Iza's Way</span>
+            </h1>
+            <span class="text-xs text-slate-400 hidden sm:inline">• Modul 7 Jarkom</span>
+          </div>
+          <p class="text-xs text-slate-400">Visualisasi Hierarki Pohon Biner & Kalkulator VLSM Kelas C</p>
+        </div>
+      </div>
+
+      <!-- Quick Presets -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="text-xs text-slate-400 font-medium mr-1 hidden md:block">Preset Modul:</div>
+        <button id="btnPresetContoh" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span>Contoh Modul (7 Subnet)</span>
+        </button>
+        <button id="btnPresetTugas" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/20 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+          <span>Tugas A-J (10 Subnet)</span>
+        </button>
+        <button id="btnResetCustom" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+          <span>Kustom Baru</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Config, Subnets & Rules (4 cols) -->
+    <section class="lg:col-span-4 flex flex-col gap-5">
+      
+      <!-- IP Configuration Card -->
+      <div class="bg-[#131d33] border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="network" class="w-4 h-4 text-cyan-400"></i>
+            Jaringan Dasar (Kelas C)
+          </h2>
+          <span class="text-xs bg-slate-800 px-2.5 py-0.5 rounded-full text-cyan-300 font-mono-code border border-slate-700">/24 (256 Alamat)</span>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Alamat IP Jaringan Awal (Net ID):</label>
+            <div class="flex items-center rounded-xl bg-[#0b1120] border border-slate-700 px-3 py-2 focus-within:border-cyan-500 transition shadow-inner">
+              <input id="inputBaseIp" type="text" value="192.168.15.0" class="w-full bg-transparent text-sm font-mono-code text-cyan-300 focus:outline-none tracking-wide" placeholder="Contoh: 192.168.15.0">
+              <span class="text-slate-500 font-mono-code text-sm px-1.5 border-l border-slate-800">/24</span>
+            </div>
+            <p id="ipErrorMsg" class="text-rose-400 text-xs mt-1 hidden"></p>
+          </div>
+
+          <!-- Octet Breakdown Visualizer -->
+          <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 text-xs space-y-2">
+            <div class="flex justify-between items-center text-slate-400">
+              <span>Struktur 4 Bagian (A.B.C.D):</span>
+              <span class="font-mono-code text-emerald-400" id="netIdDisplay">192.168.15</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5 text-center font-mono-code">
+              <div class="bg-cyan-950/40 border border-cyan-800/50 text-cyan-300 rounded p-1.5">
+                <span class="block text-[10px] text-slate-400 font-sans">A (8b)</span>
+                <span id="oct1">192</span>
+              </div>
+              <div class="bg-cyan-950/40 border border-cyan-800/50 text-cyan-300 rounded p-1.5">
+                <span class="block text-[10px] text-slate-400 font-sans">B (8b)</span>
+                <span id="oct2">168</span>
+              </div>
+              <div class="bg-cyan-950/40 border border-cyan-800/50 text-cyan-300 rounded p-1.5">
+                <span class="block text-[10px] text-slate-400 font-sans">C (8b)</span>
+                <span id="oct3">15</span>
+              </div>
+              <div class="bg-amber-950/40 border border-amber-800/50 text-amber-300 rounded p-1.5 font-bold">
+                <span class="block text-[10px] text-slate-400 font-sans">D (Pohon)</span>
+                <span>0-255</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-tight">
+              💡 <b>Catatan Modul:</b> Bagian <span class="text-cyan-300 font-medium">A.B.C</span> adalah Net ID tetap. Hanya bagian <span class="text-amber-300 font-medium">D (8 bit = 256 alamat)</span> yang dibagi oleh pohon subnetting!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subnet Allocation Manager Card -->
+      <div class="bg-[#131d33] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+            Kebutuhan Subnet
+          </h2>
+          <span id="totalAllocatedBadge" class="text-xs px-2 py-0.5 rounded-full font-mono-code font-bold bg-slate-800 border border-slate-700 text-slate-300">
+            0 / 256 IP
+          </span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-4">
+          <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden flex">
+            <div id="usageProgressBar" class="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-emerald-500 transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between items-center text-[11px] text-slate-400 mt-1 font-mono-code">
+            <span id="usageText">Terpakai: 0 IP (0%)</span>
+            <span id="freeText">Sisa: 256 IP</span>
+          </div>
+        </div>
+
+        <!-- Add Subnet Form -->
+        <form id="formAddSubnet" class="flex gap-2 mb-3">
+          <input id="newSubnetName" type="text" placeholder="Nama (mis: Jar 1)" class="w-2/5 px-2.5 py-1.5 rounded-lg bg-[#0b1120] border border-slate-700 text-xs focus:outline-none focus:border-indigo-500 font-medium text-slate-200">
+          <input id="newSubnetHosts" type="number" min="1" max="254" placeholder="Host (mis: 26)" class="w-2/5 px-2.5 py-1.5 rounded-lg bg-[#0b1120] border border-slate-700 text-xs focus:outline-none focus:border-indigo-500 font-mono-code text-cyan-300">
+          <button type="submit" class="w-1/5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center transition shadow-sm" title="Tambah Subnet">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <!-- Subnets List -->
+        <div class="flex-1 max-h-72 overflow-y-auto space-y-2 pr-1" id="subnetListContainer">
+          <!-- Dynamic Subnet Items -->
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Urutan VLSM (Terbesar ke Terkecil)</span>
+          </div>
+          <button id="btnClearAll" class="text-rose-400 hover:text-rose-300 text-xs font-medium">Hapus Semua</button>
+        </div>
+      </div>
+
+      <!-- Iza's Way Rules Card -->
+      <div class="bg-[#131d33] border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-3">
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+          4 Aturan Utama "Iza's Way"
+        </h2>
+        <ul class="text-xs space-y-2.5 text-slate-300 leading-relaxed">
+          <li class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800 flex-shrink-0 flex items-center justify-center font-bold text-[10px]">1</span>
+            <div><b>Turun Satu Tingkat:</b> Netmask bertambah 1 (<span class="font-mono-code text-cyan-300">/24 &rarr; /25 &rarr; /26...</span>), artinya bit yang dipinjam dari host bertambah 1.</div>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800 flex-shrink-0 flex items-center justify-center font-bold text-[10px]">2</span>
+            <div><b>Arah Cabang:</b> Cabang <span class="text-emerald-400 font-bold">Kiri = Bit 0</span> dan cabang <span class="text-amber-400 font-bold">Kanan = Bit 1</span>.</div>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800 flex-shrink-0 flex items-center justify-center font-bold text-[10px]">3</span>
+            <div><b>Alokasi Terbesar Dulu:</b> Selalu pecah dan alokasikan kebutuhan user terbesar terlebih dahulu agar tidak terjadi fragmentasi blok IP.</div>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800 flex-shrink-0 flex items-center justify-center font-bold text-[10px]">4</span>
+            <div><b>Rumus Host & Mask:</b> <span class="font-mono-code text-cyan-300">(2<sup>x</sup> - 2) &ge; Host</span>. Bit host = <span class="font-mono-code text-cyan-300">x</span>, Netmask = <span class="font-mono-code text-cyan-300">32 - x</span>.</div>
+          </li>
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: Interactive Views (Tabs: Tree, Table, Topology, Breakdown) (8 cols) -->
+    <section class="lg:col-span-8 flex flex-col gap-4">
+
+      <!-- View Selector Tabs -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2 flex-wrap gap-2">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button data-tab="tab-tree" class="tab-btn active px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+            <i data-lucide="git-fork" class="w-4 h-4 rotate-180"></i>
+            <span>Hierarki Pohon</span>
+          </button>
+          <button data-tab="tab-table" class="tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200 border border-transparent">
+            <i data-lucide="table" class="w-4 h-4"></i>
+            <span>Tabel Alokasi</span>
+          </button>
+          <button data-tab="tab-topology" class="tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200 border border-transparent">
+            <i data-lucide="share-2" class="w-4 h-4"></i>
+            <span>Topologi Jaringan</span>
+          </button>
+          <button data-tab="tab-calc" class="tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200 border border-transparent">
+            <i data-lucide="binary" class="w-4 h-4"></i>
+            <span>Rumus Biner Modul</span>
+          </button>
+        </div>
+
+        <div class="text-xs text-slate-400 font-mono-code hidden sm:block">
+          <span id="zoomLevelIndicator" class="bg-slate-800/80 px-2 py-1 rounded border border-slate-700">Zoom: 100%</span>
+        </div>
+      </div>
+
+      <!-- TAB 1: Tree Visualization -->
+      <div id="tab-tree" class="tab-content flex-1 flex flex-col min-h-[640px] bg-[#131d33] border border-slate-800 rounded-2xl p-4 shadow-xl relative overflow-hidden">
+        
+        <!-- Interactive Controls Bar: Element Dragging, Spacing, Pan, Zoom, Save Image, Fullscreen -->
+        <div class="bg-slate-900/90 rounded-xl p-3 border border-slate-800 mb-3 space-y-3">
+          
+          <!-- Row 1: Direct Element Dragging & Action Controls -->
+          <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+            
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center gap-1.5">
+                <i data-lucide="hand" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Geser Elemen Bebas</span>
+              </span>
+              <button id="btnResetPositions" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 text-xs font-medium transition flex items-center gap-1" title="Kembalikan posisi elemen ke otomatis">
+                <i data-lucide="refresh-cw" class="w-3 h-3 text-cyan-400"></i>
+                <span>Reset Posisi</span>
+              </button>
+            </div>
+
+            <!-- Sliders for Automatic Spacing -->
+            <div class="flex items-center gap-3 flex-wrap">
+              <!-- Horizontal Spacing Slider -->
+              <div class="flex items-center gap-2 bg-slate-800/60 px-2.5 py-1 rounded-lg border border-slate-700/60">
+                <i data-lucide="arrows-horizontal" class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0"></i>
+                <label for="sliderHSpacing" class="text-slate-300 text-[11px] font-medium whitespace-nowrap">Jarak Cabang:</label>
+                <input id="sliderHSpacing" type="range" min="90" max="280" value="150" step="5" class="w-20 sm:w-28 h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+                <span id="valHSpacing" class="font-mono-code text-cyan-300 text-[11px] w-10 text-right">150px</span>
+              </div>
+
+              <!-- Vertical Spacing Slider -->
+              <div class="flex items-center gap-2 bg-slate-800/60 px-2.5 py-1 rounded-lg border border-slate-700/60">
+                <i data-lucide="arrows-vertical" class="w-3.5 h-3.5 text-indigo-400 flex-shrink-0"></i>
+                <label for="sliderVSpacing" class="text-slate-300 text-[11px] font-medium whitespace-nowrap">Tinggi Tingkat:</label>
+                <input id="sliderVSpacing" type="range" min="80" max="170" value="115" step="5" class="w-16 sm:w-24 h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+                <span id="valVSpacing" class="font-mono-code text-indigo-300 text-[11px] w-10 text-right">115px</span>
+              </div>
+            </div>
+
+            <!-- Actions: Save PNG/JPG, Fullscreen, Pan/Zoom -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <!-- Save Image Dropdown / Buttons -->
+              <div class="flex items-center bg-slate-800/80 rounded-lg border border-slate-700/80 p-0.5">
+                <button id="btnSavePng" class="px-2.5 py-1 rounded text-cyan-300 hover:bg-cyan-500/20 text-[11px] font-semibold transition flex items-center gap-1" title="Simpan sebagai Gambar PNG Berkualitas Tinggi">
+                  <i data-lucide="download" class="w-3 h-3"></i>
+                  <span>PNG</span>
+                </button>
+                <span class="w-px h-3.5 bg-slate-700"></span>
+                <button id="btnSaveJpg" class="px-2.5 py-1 rounded text-amber-300 hover:bg-amber-500/20 text-[11px] font-semibold transition flex items-center gap-1" title="Simpan sebagai Gambar JPG">
+                  <i data-lucide="image" class="w-3 h-3"></i>
+                  <span>JPG</span>
+                </button>
+              </div>
+
+              <!-- Fullscreen Button -->
+              <button id="btnFullscreen" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white border border-slate-700 text-xs font-medium transition flex items-center gap-1.5 shadow-sm" title="Buka Layar Penuh (Fullscreen)">
+                <i data-lucide="maximize" class="w-3.5 h-3.5 text-cyan-400" id="iconFullscreen"></i>
+                <span class="hidden sm:inline" id="textFullscreen">Layar Penuh</span>
+              </button>
+
+              <!-- Canvas Navigation Controls -->
+              <div class="flex items-center gap-0.5 bg-slate-800/60 p-0.5 rounded-lg border border-slate-700/60">
+                <button id="btnCenterTree" class="p-1 rounded hover:bg-slate-700 text-cyan-300 transition" title="Pusatkan Pohon">
+                  <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+                </button>
+                <button id="btnZoomIn" class="p-1 rounded hover:bg-slate-700 text-slate-300 transition" title="Perbesar (+)">
+                  <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+                </button>
+                <button id="btnZoomOut" class="p-1 rounded hover:bg-slate-700 text-slate-300 transition" title="Perkecil (-)">
+                  <i data-lucide="zoom-out" class="w-3.5 h-3.5"></i>
+                </button>
+                <button id="btnResetView" class="p-1 rounded hover:bg-slate-700 text-slate-300 transition" title="Reset Zoom">
+                  <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Helper Banner: Direct Node Dragging & Shortcuts -->
+          <div class="flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">
+            <span class="flex items-center gap-1.5 text-cyan-300/90 font-mono-code">
+              <i data-lucide="move" class="w-3.5 h-3.5 text-cyan-400"></i>
+              🎯 <b>Geser Elemen:</b> Klik & geser lingkaran atau kotak subnet manapun untuk memindahkan posisi elemen bebas sesuai selera Anda! Garis cabang akan otomatis mengikuti.
+            </span>
+            <span class="text-slate-500 hidden md:inline">Tekan <b>F</b> untuk Fullscreen • Klik node untuk melihat detail biner</span>
+          </div>
+        </div>
+
+        <!-- SVG Container Area -->
+        <div id="treeContainer" class="flex-1 w-full h-[540px] relative cursor-default select-none overflow-hidden rounded-xl bg-[#090e1a] border border-slate-900 shadow-inner">
+          <svg id="treeSvg" class="w-full h-full">
+            <defs>
+              <linearGradient id="gradAllocated" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#06b6d4" />
+                <stop offset="100%" stop-color="#3b82f6" />
+              </linearGradient>
+            </defs>
+            <g id="treeGroup"></g>
+          </svg>
+        </div>
+
+        <!-- Linear Memory Block Bar (0 - 255) -->
+        <div class="mt-4 pt-3 border-t border-slate-800/80">
+          <div class="flex justify-between items-center text-xs mb-1.5">
+            <span class="font-semibold text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-cyan-400"></i>
+              Peta Kontigu Blok Oktet ke-4 (0 s/d 255):
+            </span>
+            <span class="text-[11px] text-slate-400 font-mono-code">256 IP Total</span>
+          </div>
+          <div id="memoryBlockBar" class="h-6 w-full bg-slate-900 rounded-lg overflow-hidden border border-slate-800 flex text-[10px] font-mono-code font-bold">
+            <!-- Dynamic segments -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Table Summary -->
+      <div id="tab-table" class="tab-content hidden flex-1 flex flex-col bg-[#131d33] border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="clipboard-list" class="w-4 h-4 text-cyan-400"></i>
+              Tabel Rekapitulasi Pembagian Subnet
+            </h3>
+            <p class="text-xs text-slate-400">Hasil perhitungan lengkap siap disalin ke lembar tugas praktikum / Word</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btnCopyMarkdown" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>Salin Markdown</span>
+            </button>
+            <button id="btnCopyCsv" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+              <span>Salin CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-[#0b1120]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-300 font-semibold border-b border-slate-800 uppercase text-[10px] tracking-wider">
+              <tr>
+                <th class="p-3">Jaringan</th>
+                <th class="p-3">User Diminta</th>
+                <th class="p-3">Network ID (CIDR)</th>
+                <th class="p-3">Netmask</th>
+                <th class="p-3">Biner Oktet 4</th>
+                <th class="p-3">Rentang Host Valid</th>
+                <th class="p-3">Broadcast</th>
+                <th class="p-3 text-right">Host Sisa</th>
+              </tr>
+            </thead>
+            <tbody id="tableSubnetBody" class="divide-y divide-slate-800/60 font-mono-code text-slate-300">
+              <!-- Dynamic rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: Network Topology View -->
+      <div id="tab-topology" class="tab-content hidden flex-1 flex flex-col bg-[#131d33] border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="diagram" class="w-4 h-4 text-cyan-400"></i>
+              Visualisasi Topologi Jaringan Modul 7
+            </h3>
+            <p class="text-xs text-slate-400" id="topologySubtitle">Diagram router dan LAN cloud interaktif</p>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-cyan-300 font-medium border border-slate-700" id="topologyPresetBadge">
+            Contoh Modul (4 Router)
+          </span>
+        </div>
+
+        <!-- Topology SVG Canvas -->
+        <div id="topologyContainer" class="w-full h-[480px] bg-[#090e1a] rounded-xl border border-slate-900 relative overflow-hidden flex items-center justify-center">
+          <svg id="topologySvg" class="w-full h-full" viewBox="0 0 800 480">
+            <!-- Dynamic topology diagram -->
+          </svg>
+        </div>
+        
+        <p class="text-xs text-slate-400 mt-3 text-center">
+          📌 Diagram di atas terhubung langsung dengan alamat subnet hasil pohon. Klik salah satu cloud atau link router untuk melihat blok IP-nya!
+        </p>
+      </div>
+
+      <!-- TAB 4: Mathematical & Binary Breakdown -->
+      <div id="tab-calc" class="tab-content hidden flex-1 flex flex-col bg-[#131d33] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-6">
+        <div>
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="calculator" class="w-4 h-4 text-cyan-400"></i>
+            Rumus & Cara Menghitung Sesuai Modul 7
+          </h3>
+          <p class="text-xs text-slate-400">Penjelasan matematis detail cara kerja peminjaman bit dan pembentukan subnet</p>
+        </div>
+
+        <!-- Formula 1: Jumlah Host -->
+        <div class="p-4 bg-[#0b1120] rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center gap-2 text-cyan-300 font-semibold text-xs">
+            <span class="w-5 h-5 rounded-full bg-cyan-950 border border-cyan-800 flex items-center justify-center text-[10px]">1</span>
+            Menghitung Kebutuhan Bit Host (x) dan Netmask
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Jumlah IP dalam satu subnet dihitung dengan rumus <span class="font-mono-code text-cyan-300 bg-slate-900 px-1.5 py-0.5 rounded">2<sup>x</sup></span>. Karena 2 alamat wajib direservasi untuk <b>Network ID</b> dan <b>Broadcast ID</b>, maka jumlah user maksimal yang dapat ditampung adalah:
+          </p>
+          <div class="p-3 bg-slate-900 rounded-lg text-center font-mono-code text-sm text-cyan-300 border border-slate-800">
+            Jumlah User Maksimal = (2<sup>x</sup> - 2) &ge; Kebutuhan User
+          </div>
+          <div class="text-xs text-slate-400 space-y-1">
+            <p>&bull; Jika kebutuhan = <b>26 user</b> &rarr; 2<sup>5</sup> - 2 = 30 &ge; 26 &rarr; <b class="text-cyan-300">x = 5 bit host</b>.</p>
+            <p>&bull; Netmask dihitung dari 32 bit total: <b class="text-cyan-300">Netmask = 32 - x = 32 - 5 = 27 (/27)</b>.</p>
+            <p>&bull; Subnet mask desimal: 256 - 32 = <b>255.255.255.224</b>.</p>
+          </div>
+        </div>
+
+        <!-- Formula 2: Bobot Biner Oktet 4 -->
+        <div class="p-4 bg-[#0b1120] rounded-xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-2 text-indigo-300 font-semibold text-xs">
+            <span class="w-5 h-5 rounded-full bg-indigo-950 border border-indigo-800 flex items-center justify-center text-[10px]">2</span>
+            Nilai Pangkat Bit pada Oktet ke-4 (8 Bit)
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Bit yang dipinjam selalu dimulai dari kiri (MSB / bit bernilai tertinggi):
+          </p>
+          <div class="grid grid-cols-8 gap-1.5 text-center font-mono-code text-xs">
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 1</span>
+              <span class="text-cyan-400 font-bold">2<sup>7</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">128</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 2</span>
+              <span class="text-cyan-400 font-bold">2<sup>6</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">64</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 3</span>
+              <span class="text-cyan-400 font-bold">2<sup>5</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">32</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 4</span>
+              <span class="text-cyan-400 font-bold">2<sup>4</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">16</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 5</span>
+              <span class="text-cyan-400 font-bold">2<sup>3</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">8</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 6</span>
+              <span class="text-cyan-400 font-bold">2<sup>2</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">4</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 7</span>
+              <span class="text-cyan-400 font-bold">2<sup>1</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">2</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-500 font-sans">Bit 8</span>
+              <span class="text-cyan-400 font-bold">2<sup>0</sup></span>
+              <span class="block text-[10px] text-slate-400 mt-1">1</span>
+            </div>
+          </div>
+          <div class="p-3 bg-slate-900/80 rounded-lg text-xs space-y-1.5 font-mono-code text-slate-300">
+            <p>Contoh Modul: <span class="text-amber-400">Jar 4 (Path 010)</span> &rarr; [0 1 0] 0 0 0 0 0 = 0&times;2<sup>7</sup> + 1&times;2<sup>6</sup> + 0&times;2<sup>5</sup> = <b class="text-emerald-400">64</b> &rarr; IP: 192.168.15.64/27</p>
+            <p>Contoh Modul: <span class="text-amber-400">Jar 5 (Path 100000)</span> &rarr; [1 0 0 0 0 0] 0 0 = 1&times;2<sup>7</sup> = <b class="text-emerald-400">128</b> &rarr; IP: 192.168.15.128/30</p>
+            <p>Contoh Modul: <span class="text-amber-400">Jar 6 (Path 100001)</span> &rarr; [1 0 0 0 0 1] 0 0 = 1&times;2<sup>7</sup> + 1&times;2<sup>2</sup> = 128 + 4 = <b class="text-emerald-400">132</b> &rarr; IP: 192.168.15.132/30</p>
+          </div>
+        </div>
+
+        <!-- Comparison Table: With vs Without Subnetting -->
+        <div class="p-4 bg-[#0b1120] rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center gap-2 text-emerald-300 font-semibold text-xs">
+            <span class="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center text-[10px]">3</span>
+            Tabel Penghematan: Tanpa Subnetting vs Dengan Subnetting (dari Modul 7)
+          </div>
+          <div class="overflow-x-auto rounded-lg border border-slate-800 mt-2">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-300 font-semibold border-b border-slate-800">
+                <tr>
+                  <th class="p-2.5">Tipe Jaringan</th>
+                  <th class="p-2.5">Tanpa Subnetting (/24)</th>
+                  <th class="p-2.5">Dengan Subnetting (VLSM)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300">
+                <tr>
+                  <td class="p-2.5 font-medium text-slate-200">Link antar router (2 host)</td>
+                  <td class="p-2.5 text-rose-400">254 alamat, 252 terbuang sia-sia</td>
+                  <td class="p-2.5 text-emerald-400 font-semibold">/30: 2 alamat valid, 0 terbuang!</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-medium text-slate-200">Lab Komputer (50 host)</td>
+                  <td class="p-2.5 text-rose-400">254 alamat, 204 terbuang</td>
+                  <td class="p-2.5 text-emerald-400 font-semibold">/26: 62 alamat valid, 12 sisa</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-medium text-slate-200">Kantor (20 host)</td>
+                  <td class="p-2.5 text-rose-400">254 alamat, 234 terbuang</td>
+                  <td class="p-2.5 text-emerald-400 font-semibold">/27: 30 alamat valid, 10 sisa</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Node Inspection Slide-Over / Modal -->
+  <div id="nodeModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#131d33] border border-slate-700 w-full max-w-xl rounded-2xl p-6 shadow-2xl relative space-y-4">
+      <button id="btnCloseModal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <div id="modalBadgeIcon" class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center font-bold">
+          <i data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 id="modalTitle" class="text-base font-bold text-white">Detail Subnet</h3>
+          <p id="modalSubtitle" class="text-xs text-slate-400 font-mono-code">192.168.15.0/27</p>
+        </div>
+      </div>
+
+      <!-- Binary Octet Visualizer Box -->
+      <div class="p-4 bg-[#0b1120] rounded-xl border border-slate-800 space-y-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-medium">Biner Oktet ke-4 (8 Bit):</span>
+          <span id="modalBitFormulaSummary" class="font-mono-code text-cyan-300 font-bold">[000]00000 = 0</span>
+        </div>
+        
+        <div id="modalBitBoxes" class="grid grid-cols-8 gap-1.5 text-center font-mono-code text-xs">
+          <!-- 8 bit boxes -->
+        </div>
+
+        <!-- Formula Multiplication -->
+        <div class="p-2.5 bg-slate-900 rounded-lg text-xs font-mono-code text-slate-300 border border-slate-800 leading-relaxed" id="modalMathCalculation">
+          0 &times; 2<sup>7</sup> + 0 &times; 2<sup>6</sup> + 0 &times; 2<sup>5</sup> = 0
+        </div>
+      </div>
+
+      <!-- Detailed Specs Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+        <div class="p-2.5 bg-slate-900/70 rounded-lg border border-slate-800">
+          <span class="text-slate-400 text-[10px] block uppercase font-semibold">Network ID</span>
+          <span id="modalNetId" class="font-mono-code text-cyan-300 font-bold text-xs">192.168.15.0</span>
+        </div>
+        <div class="p-2.5 bg-slate-900/70 rounded-lg border border-slate-800">
+          <span class="text-slate-400 text-[10px] block uppercase font-semibold">Subnet Mask</span>
+          <span id="modalMask" class="font-mono-code text-slate-200 font-medium text-xs">255.255.255.224</span>
+        </div>
+        <div class="p-2.5 bg-slate-900/70 rounded-lg border border-slate-800">
+          <span class="text-slate-400 text-[10px] block uppercase font-semibold">Prefix (CIDR)</span>
+          <span id="modalPrefix" class="font-mono-code text-indigo-300 font-bold text-xs">/27</span>
+        </div>
+        <div class="p-2.5 bg-slate-900/70 rounded-lg border border-slate-800">
+          <span class="text-slate-400 text-[10px] block uppercase font-semibold">Host Pertama</span>
+          <span id="modalFirstIp" class="font-mono-code text-emerald-300 text-xs">192.168.15.1</span>
+        </div>
+        <div class="p-2.5 bg-slate-900/70 rounded-lg border border-slate-800">
+          <span class="text-slate-400 text-[10px] block uppercase font-semibold">Host Terakhir</span>
+          <span id="modalLastIp" class="font-mono-code text-emerald-300 text-xs">192.168.15.30</span>
+        </div>
+        <div class="p-2.5 bg-slate-900/70 rounded-lg border border-slate-800">
+          <span class="text-slate-400 text-[10px] block uppercase font-semibold">Broadcast IP</span>
+          <span id="modalBcastIp" class="font-mono-code text-amber-300 font-bold text-xs">192.168.15.31</span>
+        </div>
+      </div>
+
+      <!-- Capacity & Wastage Info -->
+      <div class="p-3 bg-slate-900/40 rounded-xl border border-slate-800 text-xs flex justify-between items-center text-slate-300">
+        <div>Total Alamat Blok: <b id="modalTotalIps" class="font-mono-code text-white">32</b></div>
+        <div>User Valid: <b id="modalUsableHosts" class="font-mono-code text-emerald-400">30</b></div>
+        <div>Kebutuhan: <b id="modalRequiredHosts" class="font-mono-code text-cyan-400">-</b></div>
+        <div>Sisa/Cadangan: <b id="modalWastedHosts" class="font-mono-code text-slate-400">-</b></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-cyan-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span id="toastMsg">Tersalin ke clipboard!</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // State
+    const state = {
+      baseIp: '192.168.15.0',
+      presetName: 'contoh',
+      subnets: [],
+      allocatedTree: null,
+      activeTab: 'tab-tree',
+      leafSpacing: 150, // horizontal distance between leaves in px
+      levelHeight: 115, // vertical distance between levels in px
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      isPanningCanvas: false,
+      startPanX: 0,
+      startPanY: 0,
+      
+      // Node Dragging State
+      customPositions: {}, // key: prefix_offset -> { x, y }
+      draggingNode: null,
+      dragOffset: { x: 0, y: 0 },
+      hasDraggedNode: false,
+      treeEdges: [],
+      nodeElementMap: new Map(),
+
+      lastBounds: null
+    };
+
+    // Presets
+    const PRESET_CONTOH = {
+      baseIp: '192.168.15.0',
+      subnets: [
+        { id: '1', name: 'Jaringan 1', hosts: 26, color: '#06b6d4' },
+        { id: '2', name: 'Jaringan 2', hosts: 25, color: '#3b82f6' },
+        { id: '3', name: 'Jaringan 4', hosts: 20, color: '#8b5cf6' },
+        { id: '4', name: 'Jaringan 3', hosts: 15, color: '#ec4899' },
+        { id: '5', name: 'Jaringan 5 (Link R1-R2)', hosts: 2, color: '#f59e0b' },
+        { id: '6', name: 'Jaringan 6 (Link R1-R3)', hosts: 2, color: '#10b981' },
+        { id: '7', name: 'Jaringan 7 (Link R1-R4)', hosts: 2, color: '#14b8a6' }
+      ]
+    };
+
+    const PRESET_TUGAS = {
+      baseIp: '172.16.20.0',
+      subnets: [
+        { id: 'B', name: 'Jaringan B', hosts: 60, color: '#06b6d4' },
+        { id: 'D', name: 'Jaringan D', hosts: 50, color: '#3b82f6' },
+        { id: 'A', name: 'Jaringan A', hosts: 30, color: '#8b5cf6' },
+        { id: 'F', name: 'Jaringan F', hosts: 30, color: '#a855f7' },
+        { id: 'E', name: 'Jaringan E', hosts: 20, color: '#ec4899' },
+        { id: 'C', name: 'Jaringan C', hosts: 10, color: '#f43f5e' },
+        { id: 'G', name: 'Jaringan G (Link R1-R2)', hosts: 2, color: '#f59e0b' },
+        { id: 'H', name: 'Jaringan H (Link R1-R3)', hosts: 2, color: '#10b981' },
+        { id: 'I', name: 'Jaringan I (Link R1-R4)', hosts: 2, color: '#14b8a6' },
+        { id: 'J', name: 'Jaringan J (Link R1-R5)', hosts: 2, color: '#eab308' }
+      ]
+    };
+
+    // Color generator for dynamic subnets
+    const PALETTE = ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#14b8a6', '#6366f1', '#eab308', '#f43f5e'];
+
+    // Helper: Validate and parse Class C IP
+    function parseIp(ipStr) {
+      const parts = ipStr.trim().split('.');
+      if (parts.length !== 4) return null;
+      const nums = parts.map(p => Number(p));
+      for (let i = 0; i < 4; i++) {
+        if (isNaN(nums[i]) || nums[i] < 0 || nums[i] > 255) return null;
+      }
+      return nums;
+    }
+
+    // Helper: Calculate minimal host bits x, block size, mask
+    function calculateSubnetSpecs(hosts) {
+      let x = 2; // at least 2 host bits for /30 (2 usable hosts)
+      while (x <= 8) {
+        if (Math.pow(2, x) - 2 >= hosts) break;
+        x++;
+      }
+      const size = Math.pow(2, x);
+      const prefix = 32 - x;
+      const maskLast = 256 - size;
+      const mask = `255.255.255.${maskLast}`;
+      const usable = size - 2;
+      return { x, size, prefix, mask, usable };
+    }
+
+    // Binary Tree Allocator (Iza's Way)
+    function buildTree(baseIp, subnets) {
+      const ipParts = parseIp(baseIp) || [192, 168, 15, 0];
+      const oct3 = ipParts.slice(0, 3).join('.');
+
+      const sorted = [...subnets].sort((a, b) => b.hosts - a.hosts);
+
+      sorted.forEach((sub, idx) => {
+        const specs = calculateSubnetSpecs(sub.hosts);
+        sub.x = specs.x;
+        sub.size = specs.size;
+        sub.prefix = specs.prefix;
+        sub.mask = specs.mask;
+        sub.usable = specs.usable;
+        sub.color = sub.color || PALETTE[idx % PALETTE.length];
+      });
+
+      const root = {
+        prefix: 24,
+        offset: 0,
+        size: 256,
+        bitPath: '',
+        key: '24_0',
+        left: null,
+        right: null,
+        sub: null
+      };
+
+      function allocate(node, sub) {
+        if (node.sub !== null) return false;
+        if (node.left !== null) {
+          if (allocate(node.left, sub)) return true;
+          return allocate(node.right, sub);
+        }
+        if (node.size === sub.size) {
+          node.sub = sub;
+          sub.allocatedOffset = node.offset;
+          sub.allocatedPath = node.bitPath;
+          sub.network = `${oct3}.${node.offset}/${node.prefix}`;
+          sub.firstIp = `${oct3}.${node.offset + 1}`;
+          sub.lastIp = `${oct3}.${node.offset + node.size - 2}`;
+          sub.broadcast = `${oct3}.${node.offset + node.size - 1}`;
+          return true;
+        } else if (node.size > sub.size) {
+          const half = node.size / 2;
+          node.left = {
+            prefix: node.prefix + 1,
+            offset: node.offset,
+            size: half,
+            bitPath: node.bitPath + '0',
+            key: `${node.prefix + 1}_${node.offset}`,
+            left: null,
+            right: null,
+            sub: null
+          };
+          node.right = {
+            prefix: node.prefix + 1,
+            offset: node.offset + half,
+            size: half,
+            bitPath: node.bitPath + '1',
+            key: `${node.prefix + 1}_${node.offset + half}`,
+            left: null,
+            right: null,
+            sub: null
+          };
+          return allocate(node.left, sub);
+        }
+        return false;
+      }
+
+      const allocated = [];
+      const failed = [];
+
+      sorted.forEach(sub => {
+        if (allocate(root, sub)) {
+          allocated.push(sub);
+        } else {
+          failed.push(sub);
+        }
+      });
+
+      return { root, subnets: allocated, failed, oct3 };
+    }
+
+    // Convert screen coordinates to SVG treeGroup coordinates
+    function screenToSvgCoords(clientX, clientY) {
+      const svg = document.getElementById('treeSvg');
+      const group = document.getElementById('treeGroup');
+      const pt = svg.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const ctm = group.getScreenCTM();
+      if (!ctm) return { x: clientX, y: clientY };
+      const svgP = pt.matrixTransform(ctm.inverse());
+      return { x: svgP.x, y: svgP.y };
+    }
+
+    // UI Updates
+    function updateUI(recenter = false) {
+      const parts = parseIp(state.baseIp) || [192, 168, 15, 0];
+      document.getElementById('oct1').textContent = parts[0];
+      document.getElementById('oct2').textContent = parts[1];
+      document.getElementById('oct3').textContent = parts[2];
+      document.getElementById('netIdDisplay').textContent = `${parts[0]}.${parts[1]}.${parts[2]}`;
+
+      const result = buildTree(state.baseIp, state.subnets);
+      state.allocatedTree = result;
+
+      let totalIpsUsed = 0;
+      result.subnets.forEach(s => totalIpsUsed += s.size);
+      const pct = Math.min(100, Math.round((totalIpsUsed / 256) * 100));
+      
+      const bar = document.getElementById('usageProgressBar');
+      bar.style.width = `${pct}%`;
+      if (totalIpsUsed > 256) {
+        bar.className = 'h-full bg-rose-500 transition-all duration-300';
+      } else if (totalIpsUsed === 256) {
+        bar.className = 'h-full bg-emerald-500 transition-all duration-300';
+      } else {
+        bar.className = 'h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-emerald-500 transition-all duration-300';
+      }
+
+      document.getElementById('totalAllocatedBadge').textContent = `${totalIpsUsed} / 256 IP`;
+      document.getElementById('usageText').textContent = `Terpakai: ${totalIpsUsed} IP (${pct}%)`;
+      document.getElementById('freeText').textContent = `Sisa: ${Math.max(0, 256 - totalIpsUsed)} IP`;
+
+      renderSubnetList(result.subnets, result.failed);
+      renderTreeSvg(result.root, result.oct3, recenter);
+      renderMemoryBar(result.root, result.oct3);
+      renderTable(result.subnets, result.oct3);
+      renderTopology(result.subnets);
+
+      lucide.createIcons();
+    }
+
+    // Render Subnet Manager Items
+    function renderSubnetList(subnets, failed) {
+      const container = document.getElementById('subnetListContainer');
+      container.innerHTML = '';
+
+      if (subnets.length === 0 && failed.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-6 text-slate-500 text-xs">
+            Belum ada subnet. Tambahkan di atas atau pilih preset!
+          </div>
+        `;
+        return;
+      }
+
+      subnets.forEach((sub, i) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2.5 rounded-xl bg-[#0b1120] border border-slate-800 hover:border-slate-700 text-xs transition group';
+        item.innerHTML = `
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${sub.color}"></span>
+            <div class="truncate">
+              <span class="font-semibold text-slate-200">${sub.name}</span>
+              <span class="text-[11px] text-slate-400 block font-mono-code">${sub.hosts} User &bull; /${sub.prefix} (${sub.size} IP)</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono-code text-[11px] border border-slate-700">
+              .${sub.allocatedOffset}
+            </span>
+            <button class="btn-del-sub text-slate-500 hover:text-rose-400 p-1 opacity-60 group-hover:opacity-100 transition" data-id="${sub.id}" title="Hapus">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      failed.forEach(sub => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2.5 rounded-xl bg-rose-950/20 border border-rose-900/40 text-xs text-rose-300';
+        item.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 flex-shrink-0"></i>
+            <span class="truncate">${sub.name} (${sub.hosts} User) - Ruang IP /24 Penuh!</span>
+          </div>
+          <button class="btn-del-sub text-rose-400 p-1" data-id="${sub.id}"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        `;
+        container.appendChild(item);
+      });
+
+      container.querySelectorAll('.btn-del-sub').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.getAttribute('data-id');
+          state.subnets = state.subnets.filter(s => s.id !== id);
+          updateUI(false);
+        });
+      });
+    }
+
+    // Direct Draggable Tree SVG Rendering
+    function renderTreeSvg(root, oct3, recenter = false) {
+      const group = document.getElementById('treeGroup');
+      group.innerHTML = '';
+
+      const spacing = state.leafSpacing;
+      const lHeight = state.levelHeight;
+      const startY = 75;
+      const startX = 140;
+
+      let leafIndex = 0;
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let maxY = 0;
+
+      function layoutNode(node) {
+        node.key = `${node.prefix}_${node.offset}`;
+
+        if (!node.left && !node.right) {
+          node.defaultX = startX + leafIndex * spacing;
+          leafIndex++;
+        } else {
+          if (node.left) layoutNode(node.left);
+          if (node.right) layoutNode(node.right);
+          node.defaultX = (node.left.defaultX + node.right.defaultX) / 2;
+        }
+        node.defaultY = startY + (node.prefix - 24) * lHeight;
+
+        if (state.customPositions[node.key]) {
+          node.x = state.customPositions[node.key].x;
+          node.y = state.customPositions[node.key].y;
+        } else {
+          node.x = node.defaultX;
+          node.y = node.defaultY;
+        }
+
+        minX = Math.min(minX, node.x);
+        maxX = Math.max(maxX, node.x);
+        maxY = Math.max(maxY, node.y);
+      }
+
+      layoutNode(root);
+      state.lastBounds = { minX, maxX, maxY, totalWidth: maxX - minX + 280 };
+
+      const canvasWidth = Math.max(1600, (leafIndex * spacing) + 300);
+
+      // Level guidelines
+      const levelLabels = [
+        { p: 24, size: 256, mask: '255.255.255.0' },
+        { p: 25, size: 128, mask: '255.255.255.128' },
+        { p: 26, size: 64,  mask: '255.255.255.192' },
+        { p: 27, size: 32,  mask: '255.255.255.224' },
+        { p: 28, size: 16,  mask: '255.255.255.240' },
+        { p: 29, size: 8,   mask: '255.255.255.248' },
+        { p: 30, size: 4,   mask: '255.255.255.252' }
+      ];
+
+      levelLabels.forEach(lvl => {
+        const y = startY + (lvl.p - 24) * lHeight;
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', -500);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', canvasWidth + 1000);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', '#1e293b');
+        line.setAttribute('stroke-dasharray', '5,5');
+        line.setAttribute('stroke-width', '1');
+        group.appendChild(line);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', 30);
+        text.setAttribute('y', y + 4);
+        text.setAttribute('fill', '#64748b');
+        text.setAttribute('font-size', '11');
+        text.setAttribute('font-weight', 'bold');
+        text.setAttribute('font-family', 'JetBrains Mono, monospace');
+        text.textContent = `/${lvl.p} (${lvl.size})`;
+        group.appendChild(text);
+      });
+
+      // Collect edges & nodes
+      state.treeEdges = [];
+      state.nodeElementMap.clear();
+      const nodes = [];
+
+      function traverse(node, parent) {
+        nodes.push(node);
+        if (parent) {
+          const bitVal = node.bitPath.slice(-1);
+          const edgeId = `edge_${parent.key}_to_${node.key}`;
+          state.treeEdges.push({
+            id: edgeId,
+            parent,
+            child: node,
+            bit: bitVal,
+            pathElem: null,
+            badgeElem: null
+          });
+        }
+        if (node.left) traverse(node.left, node);
+        if (node.right) traverse(node.right, node);
+      }
+
+      traverse(root, null);
+
+      // Draw Edges
+      state.treeEdges.forEach(edge => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#334155');
+        path.setAttribute('stroke-width', '2.5');
+        path.setAttribute('class', 'tree-edge');
+        edge.pathElem = path;
+        group.appendChild(path);
+
+        const badgeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bg.setAttribute('x', -14);
+        bg.setAttribute('y', -9);
+        bg.setAttribute('width', 28);
+        bg.setAttribute('height', 18);
+        bg.setAttribute('rx', 5);
+        bg.setAttribute('fill', '#090e1a');
+        bg.setAttribute('stroke', edge.bit === '0' ? '#10b981' : '#f59e0b');
+        bg.setAttribute('stroke-width', '1.5');
+        badgeG.appendChild(bg);
+
+        const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        lbl.setAttribute('x', 0);
+        lbl.setAttribute('y', 3.5);
+        lbl.setAttribute('text-anchor', 'middle');
+        lbl.setAttribute('font-size', '10.5');
+        lbl.setAttribute('font-weight', 'bold');
+        lbl.setAttribute('font-family', 'JetBrains Mono, monospace');
+        lbl.setAttribute('fill', edge.bit === '0' ? '#34d399' : '#fbbf24');
+        lbl.textContent = edge.bit;
+        badgeG.appendChild(lbl);
+
+        edge.badgeElem = badgeG;
+        group.appendChild(badgeG);
+
+        updateEdgeGeometry(edge);
+      });
+
+      // Draw Nodes
+      nodes.forEach(node => {
+        const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        nodeG.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+        nodeG.setAttribute('class', 'tree-node');
+        nodeG.setAttribute('data-key', node.key);
+        state.nodeElementMap.set(node.key, nodeG);
+
+        // Mouse Down for Node Dragging
+        nodeG.addEventListener('mousedown', (e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          
+          state.draggingNode = node;
+          state.hasDraggedNode = false;
+          nodeG.classList.add('dragging');
+
+          const svgPt = screenToSvgCoords(e.clientX, e.clientY);
+          state.dragOffset = {
+            x: svgPt.x - node.x,
+            y: svgPt.y - node.y
+          };
+        });
+
+        // Touch Start for Node Dragging
+        nodeG.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          e.stopPropagation();
+
+          state.draggingNode = node;
+          state.hasDraggedNode = false;
+          nodeG.classList.add('dragging');
+
+          const svgPt = screenToSvgCoords(e.touches[0].clientX, e.touches[0].clientY);
+          state.dragOffset = {
+            x: svgPt.x - node.x,
+            y: svgPt.y - node.y
+          };
+        }, { passive: false });
+
+        // Node click triggers modal ONLY if not dragged
+        nodeG.addEventListener('click', (e) => {
+          if (state.hasDraggedNode) return;
+          openNodeModal(node, oct3);
+        });
+
+        if (node.sub) {
+          // --- ALLOCATED NODE ---
+          const sub = node.sub;
+          
+          const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          glow.setAttribute('r', 34);
+          glow.setAttribute('fill', sub.color);
+          glow.setAttribute('class', 'pulse-anim');
+          nodeG.appendChild(glow);
+
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('r', 28);
+          circle.setAttribute('fill', '#0f172a');
+          circle.setAttribute('stroke', sub.color);
+          circle.setAttribute('stroke-width', '3.5');
+          nodeG.appendChild(circle);
+
+          const sizeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          sizeText.setAttribute('y', 5.5);
+          sizeText.setAttribute('text-anchor', 'middle');
+          sizeText.setAttribute('font-size', '15');
+          sizeText.setAttribute('font-weight', 'bold');
+          sizeText.setAttribute('font-family', 'JetBrains Mono, monospace');
+          sizeText.setAttribute('fill', '#ffffff');
+          sizeText.textContent = node.size;
+          nodeG.appendChild(sizeText);
+
+          const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          nameText.setAttribute('y', 44);
+          nameText.setAttribute('text-anchor', 'middle');
+          nameText.setAttribute('font-size', '11.5');
+          nameText.setAttribute('font-weight', 'bold');
+          nameText.setAttribute('fill', sub.color);
+          nameText.textContent = sub.name;
+          nodeG.appendChild(nameText);
+
+          const ipText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          ipText.setAttribute('y', 58);
+          ipText.setAttribute('text-anchor', 'middle');
+          ipText.setAttribute('font-size', '10');
+          ipText.setAttribute('font-family', 'JetBrains Mono, monospace');
+          ipText.setAttribute('fill', '#94a3b8');
+          ipText.textContent = `.${node.offset}/${node.prefix}`;
+          nodeG.appendChild(ipText);
+
+          if (node.bitPath) {
+            const bitTag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            bitTag.setAttribute('y', -34);
+            bitTag.setAttribute('text-anchor', 'middle');
+            bitTag.setAttribute('font-size', '9.5');
+            bitTag.setAttribute('font-family', 'JetBrains Mono, monospace');
+            bitTag.setAttribute('fill', '#38bdf8');
+            bitTag.textContent = node.bitPath;
+            nodeG.appendChild(bitTag);
+          }
+
+        } else if (node.left !== null) {
+          // --- BRANCHING PARENT NODE ---
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', -26);
+          rect.setAttribute('y', -18);
+          rect.setAttribute('width', 52);
+          rect.setAttribute('height', 36);
+          rect.setAttribute('rx', 9);
+          rect.setAttribute('fill', '#1e293b');
+          rect.setAttribute('stroke', '#475569');
+          rect.setAttribute('stroke-width', '2');
+          nodeG.appendChild(rect);
+
+          const sizeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          sizeText.setAttribute('y', 5);
+          sizeText.setAttribute('text-anchor', 'middle');
+          sizeText.setAttribute('font-size', '14');
+          sizeText.setAttribute('font-weight', 'bold');
+          sizeText.setAttribute('font-family', 'JetBrains Mono, monospace');
+          sizeText.setAttribute('fill', '#f1f5f9');
+          sizeText.textContent = node.size;
+          nodeG.appendChild(sizeText);
+
+          if (node.bitPath) {
+            const bitTag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            bitTag.setAttribute('y', -23);
+            bitTag.setAttribute('text-anchor', 'middle');
+            bitTag.setAttribute('font-size', '9.5');
+            bitTag.setAttribute('font-family', 'JetBrains Mono, monospace');
+            bitTag.setAttribute('fill', '#64748b');
+            bitTag.textContent = node.bitPath;
+            nodeG.appendChild(bitTag);
+          }
+
+        } else {
+          // --- UNALLOCATED FREE LEAF ---
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', -24);
+          rect.setAttribute('y', -16);
+          rect.setAttribute('width', 48);
+          rect.setAttribute('height', 32);
+          rect.setAttribute('rx', 7);
+          rect.setAttribute('fill', '#090e1a');
+          rect.setAttribute('stroke', '#334155');
+          rect.setAttribute('stroke-dasharray', '3.5,3.5');
+          rect.setAttribute('stroke-width', '1.5');
+          nodeG.appendChild(rect);
+
+          const sizeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          sizeText.setAttribute('y', 4.5);
+          sizeText.setAttribute('text-anchor', 'middle');
+          sizeText.setAttribute('font-size', '12');
+          sizeText.setAttribute('font-family', 'JetBrains Mono, monospace');
+          sizeText.setAttribute('fill', '#64748b');
+          sizeText.textContent = node.size;
+          nodeG.appendChild(sizeText);
+
+          const freeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          freeText.setAttribute('y', 28);
+          freeText.setAttribute('text-anchor', 'middle');
+          freeText.setAttribute('font-size', '9');
+          freeText.setAttribute('fill', '#475569');
+          freeText.textContent = 'Kosong';
+          nodeG.appendChild(freeText);
+        }
+
+        group.appendChild(nodeG);
+      });
+
+      if (recenter) {
+        centerTreeInView();
+      } else {
+        applyViewTransform();
+      }
+    }
+
+    // Helper: Update edge geometry
+    function updateEdgeGeometry(edge) {
+      const p1 = { x: edge.parent.x, y: edge.parent.y };
+      const p2 = { x: edge.child.x, y: edge.child.y };
+      const midY = (p1.y + p2.y) / 2;
+      const d = `M ${p1.x} ${p1.y} C ${p1.x} ${midY}, ${p2.x} ${midY}, ${p2.x} ${p2.y}`;
+      edge.pathElem.setAttribute('d', d);
+
+      const labelX = (p1.x + p2.x) / 2;
+      const labelY = (p1.y + p2.y) / 2;
+      edge.badgeElem.setAttribute('transform', `translate(${labelX}, ${labelY})`);
+    }
+
+    function updateConnectedEdges(node) {
+      state.treeEdges.forEach(edge => {
+        if (edge.parent === node || edge.child === node) {
+          updateEdgeGeometry(edge);
+        }
+      });
+    }
+
+    // Center tree inside container view
+    function centerTreeInView() {
+      const container = document.getElementById('treeContainer');
+      const cw = container.clientWidth || 800;
+      const ch = container.clientHeight || 540;
+
+      if (state.lastBounds) {
+        const treeCenterX = (state.lastBounds.minX + state.lastBounds.maxX) / 2;
+        state.panX = (cw / 2) - (treeCenterX * state.zoom);
+        state.panY = 30;
+      } else {
+        state.panX = 50;
+        state.panY = 30;
+      }
+      applyViewTransform();
+    }
+
+    // Apply Pan and Zoom to Tree SVG
+    function applyViewTransform() {
+      const group = document.getElementById('treeGroup');
+      group.setAttribute('transform', `translate(${state.panX}, ${state.panY}) scale(${state.zoom})`);
+      document.getElementById('zoomLevelIndicator').textContent = `Zoom: ${Math.round(state.zoom * 100)}%`;
+    }
+
+    // Export Tree Hierarchy to PNG or JPG
+    function exportTreeImage(format = 'png') {
+      const svg = document.getElementById('treeSvg');
+      const group = document.getElementById('treeGroup');
+
+      if (!group || !state.lastBounds) {
+        alert('Gagal mengekspor pohon. Pastikan tab pohon sedang aktif.');
+        return;
+      }
+
+      showToast(`Menyiapkan berkas ${format.toUpperCase()}...`);
+
+      // 1. Clone the SVG element so we do not mess up current screen view
+      const cloneSvg = svg.cloneNode(true);
+      const cloneGroup = cloneSvg.getElementById('treeGroup');
+
+      // 2. Measure actual bounding box of all nodes
+      const bbox = group.getBBox();
+      const padX = 60;
+      const padY = 70;
+      const x = Math.floor(bbox.x - padX);
+      const y = Math.floor(bbox.y - padY);
+      const w = Math.ceil(bbox.width + padX * 2);
+      const h = Math.ceil(bbox.height + padY * 2);
+
+      cloneSvg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+      cloneSvg.setAttribute('width', w);
+      cloneSvg.setAttribute('height', h);
+      cloneGroup.removeAttribute('transform');
+
+      // 3. Add dark background rectangle
+      const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      bgRect.setAttribute('x', x);
+      bgRect.setAttribute('y', y);
+      bgRect.setAttribute('width', w);
+      bgRect.setAttribute('height', h);
+      bgRect.setAttribute('fill', '#090e1a');
+      cloneSvg.insertBefore(bgRect, cloneSvg.firstChild);
+
+      // 4. Add Title & Metadata Watermark
+      const headerG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      title.setAttribute('x', x + 35);
+      title.setAttribute('y', y + 36);
+      title.setAttribute('fill', '#38bdf8');
+      title.setAttribute('font-size', '16');
+      title.setAttribute('font-weight', 'bold');
+      title.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+      title.textContent = `Hierarki Pohon Subnetting (Iza's Way) • Base IP: ${state.baseIp}/24`;
+      headerG.appendChild(title);
+
+      const subtitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      subtitle.setAttribute('x', x + 35);
+      subtitle.setAttribute('y', y + 54);
+      subtitle.setAttribute('fill', '#64748b');
+      subtitle.setAttribute('font-size', '11');
+      subtitle.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+      subtitle.textContent = `Modul 7 Jaringan Komputer • Diekspor otomatis dari Aplikasi Subnetting-Calculate`;
+      headerG.appendChild(subtitle);
+
+      cloneSvg.appendChild(headerG);
+
+      // 5. Serialize SVG to Image
+      const svgStr = new XMLSerializer().serializeToString(cloneSvg);
+      const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.onload = () => {
+        const scale = 2; // 2x high resolution
+        const canvas = document.createElement('canvas');
+        canvas.width = w * scale;
+        canvas.height = h * scale;
+        const ctx = canvas.getContext('2d');
+
+        // Dark background
+        ctx.fillStyle = '#090e1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw scaled SVG
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0);
+
+        const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
+        const ext = format === 'jpg' ? 'jpg' : 'png';
+        const dataUrl = canvas.toDataURL(mimeType, 0.95);
+
+        const a = document.createElement('a');
+        const cleanIp = state.baseIp.replace(/\./g, '-');
+        a.download = `pohon-subnetting-${cleanIp}.${ext}`;
+        a.href = dataUrl;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(blobUrl);
+        showToast(`Gambar pohon berhasil disimpan sebagai ${ext.toUpperCase()}!`);
+      };
+      img.onerror = () => {
+        alert('Gagal mengonversi SVG ke gambar. Silakan coba lagi.');
+        URL.revokeObjectURL(blobUrl);
+      };
+      img.src = blobUrl;
+    }
+
+    // Toggle Fullscreen on Tab Tree
+    function toggleFullscreen() {
+      const treeTab = document.getElementById('tab-tree');
+      if (!document.fullscreenElement) {
+        if (treeTab.requestFullscreen) {
+          treeTab.requestFullscreen();
+        } else if (treeTab.webkitRequestFullscreen) {
+          treeTab.webkitRequestFullscreen();
+        } else if (treeTab.msRequestFullscreen) {
+          treeTab.msRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Render 0-255 Memory Block Bar
+    function renderMemoryBar(root, oct3) {
+      const bar = document.getElementById('memoryBlockBar');
+      bar.innerHTML = '';
+
+      const leaves = [];
+      function collectLeaves(node) {
+        if (!node.left && !node.right) {
+          leaves.push(node);
+        } else {
+          if (node.left) collectLeaves(node.left);
+          if (node.right) collectLeaves(node.right);
+        }
+      }
+      collectLeaves(root);
+
+      leaves.forEach(leaf => {
+        const pct = (leaf.size / 256) * 100;
+        const seg = document.createElement('div');
+        seg.style.width = `${pct}%`;
+        seg.className = 'h-full flex items-center justify-center border-r border-slate-900 transition hover:brightness-125 cursor-pointer relative group';
+        
+        if (leaf.sub) {
+          seg.style.backgroundColor = leaf.sub.color;
+          seg.innerHTML = `
+            <span class="truncate px-1 text-slate-950 font-bold">${leaf.sub.name.split(' ')[0]}</span>
+            <div class="absolute bottom-full mb-1 hidden group-hover:block bg-slate-900 border border-slate-700 text-white text-[11px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-30 font-normal">
+              <b>${leaf.sub.name}</b>: ${oct3}.${leaf.offset}/${leaf.prefix} (${leaf.size} IP)
+            </div>
+          `;
+        } else {
+          seg.className += ' bg-slate-800/40 text-slate-500';
+          seg.innerHTML = `
+            <span class="truncate px-1 text-[9px]">.${leaf.offset}</span>
+            <div class="absolute bottom-full mb-1 hidden group-hover:block bg-slate-900 border border-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-30 font-normal">
+              Kosong: ${oct3}.${leaf.offset}/${leaf.prefix} (${leaf.size} IP)
+            </div>
+          `;
+        }
+
+        seg.addEventListener('click', () => openNodeModal(leaf, oct3));
+        bar.appendChild(seg);
+      });
+    }
+
+    // Render Table
+    function renderTable(subnets, oct3) {
+      const tbody = document.getElementById('tableSubnetBody');
+      tbody.innerHTML = '';
+
+      if (subnets.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500 font-sans">Tidak ada data subnet.</td></tr>`;
+        return;
+      }
+
+      subnets.forEach(sub => {
+        const bin8 = sub.allocatedOffset.toString(2).padStart(8, '0');
+        const borrowedCount = sub.prefix - 24;
+        const borrowedBits = bin8.slice(0, borrowedCount);
+        const hostBits = bin8.slice(borrowedCount);
+        const wasted = sub.usable - sub.hosts;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition cursor-pointer';
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-white font-sans flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${sub.color}"></span>
+            ${sub.name}
+          </td>
+          <td class="p-3 text-cyan-400 font-bold">${sub.hosts} User</td>
+          <td class="p-3 text-emerald-400 font-bold">${sub.network}</td>
+          <td class="p-3 text-slate-300">${sub.mask}</td>
+          <td class="p-3 text-xs">
+            <span class="text-cyan-300 font-bold bg-cyan-950/60 px-1 rounded">[${borrowedBits}]</span><span class="text-slate-500">${hostBits}</span>
+          </td>
+          <td class="p-3 text-slate-200">${sub.firstIp} - ${sub.lastIp}</td>
+          <td class="p-3 text-amber-300">${sub.broadcast}</td>
+          <td class="p-3 text-right ${wasted < 5 ? 'text-emerald-400' : 'text-slate-400'}">${wasted} IP</td>
+        `;
+        tr.addEventListener('click', () => {
+          openNodeModal({
+            prefix: sub.prefix,
+            offset: sub.allocatedOffset,
+            size: sub.size,
+            bitPath: sub.allocatedPath,
+            sub: sub
+          }, oct3);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Render Topology
+    function renderTopology(subnets) {
+      const svg = document.getElementById('topologySvg');
+      svg.innerHTML = '';
+
+      const isTugas = (state.presetName === 'tugas' || subnets.length >= 8);
+      document.getElementById('topologySubtitle').textContent = isTugas 
+        ? 'Topologi Tugas Modul 7: 1 Router Pusat + 4 Router Cabang (Jaringan A s/d J)'
+        : 'Topologi Studi Kasus Modul 7: 4 Router Seri (Jaringan 1 s/d 7)';
+      document.getElementById('topologyPresetBadge').textContent = isTugas 
+        ? 'Tugas Modul (10 Subnet)'
+        : 'Studi Kasus (7 Subnet)';
+
+      if (!isTugas) {
+        // --- 4 ROUTER TOPOLOGY (Contoh Modul) ---
+        const r1 = { x: 400, y: 110, name: 'R1 (Pusat)' };
+        const r2 = { x: 180, y: 320, name: 'R2' };
+        const r3 = { x: 400, y: 320, name: 'R3' };
+        const r4 = { x: 620, y: 320, name: 'R4' };
+
+        const s1 = subnets.find(s => s.name.includes('1')) || subnets[0];
+        const s2 = subnets.find(s => s.name.includes('2')) || subnets[1];
+        const s4 = subnets.find(s => s.name.includes('4')) || subnets[2];
+        const s3 = subnets.find(s => s.name.includes('3')) || subnets[3];
+        const s5 = subnets.find(s => s.name.includes('5')) || subnets[4];
+        const s6 = subnets.find(s => s.name.includes('6')) || subnets[5];
+        const s7 = subnets.find(s => s.name.includes('7')) || subnets[6];
+
+        drawTopoLink(svg, r1, r2, s5 ? `${s5.name}: ${s5.network}` : 'Link 5 (/30)');
+        drawTopoLink(svg, r1, r3, s6 ? `${s6.name}: ${s6.network}` : 'Link 6 (/30)');
+        drawTopoLink(svg, r1, r4, s7 ? `${s7.name}: ${s7.network}` : 'Link 7 (/30)');
+
+        drawTopoCloud(svg, 590, 80, s1 ? `${s1.name} (25 Host)` : 'LAN 1', s1 ? s1.network : '');
+        drawTopoLink(svg, r1, { x: 540, y: 80 }, '');
+
+        drawTopoCloud(svg, 180, 420, s2 ? `${s2.name} (26 Host)` : 'LAN 2', s2 ? s2.network : '');
+        drawTopoLink(svg, r2, { x: 180, y: 390 }, '');
+
+        drawTopoCloud(svg, 400, 420, s3 ? `${s3.name} (15 Host)` : 'LAN 3', s3 ? s3.network : '');
+        drawTopoLink(svg, r3, { x: 400, y: 390 }, '');
+
+        drawTopoCloud(svg, 620, 420, s4 ? `${s4.name} (20 Host)` : 'LAN 4', s4 ? s4.network : '');
+        drawTopoLink(svg, r4, { x: 620, y: 390 }, '');
+
+        [r1, r2, r3, r4].forEach(r => drawTopoRouter(svg, r.x, r.y, r.name));
+
+      } else {
+        // --- 5 ROUTER TOPOLOGY (Tugas Modul A-J) ---
+        const rCenter = { x: 400, y: 220, name: 'R-Center' };
+        const rTL = { x: 220, y: 110, name: 'Router 1' };
+        const rTR = { x: 580, y: 110, name: 'Router 2' };
+        const rBL = { x: 220, y: 330, name: 'Router 3' };
+        const rBR = { x: 580, y: 330, name: 'Router 4' };
+
+        const sA = subnets.find(s => s.name.includes('A'));
+        const sB = subnets.find(s => s.name.includes('B'));
+        const sC = subnets.find(s => s.name.includes('C'));
+        const sD = subnets.find(s => s.name.includes('D'));
+        const sE = subnets.find(s => s.name.includes('E'));
+        const sF = subnets.find(s => s.name.includes('F'));
+        const sG = subnets.find(s => s.name.includes('G'));
+        const sH = subnets.find(s => s.name.includes('H'));
+        const sI = subnets.find(s => s.name.includes('I'));
+        const sJ = subnets.find(s => s.name.includes('J'));
+
+        drawTopoLink(svg, rTL, rCenter, sG ? `G: ${sG.network}` : 'G (/30)');
+        drawTopoLink(svg, rCenter, rTR, sJ ? `J: ${sJ.network}` : 'J (/30)');
+        drawTopoLink(svg, rBL, rCenter, sH ? `H: ${sH.network}` : 'H (/30)');
+        drawTopoLink(svg, rCenter, rBR, sI ? `I: ${sI.network}` : 'I (/30)');
+
+        drawTopoCloud(svg, 70, 70, 'Jaringan A (30 User)', sA ? sA.network : '');
+        drawTopoLink(svg, rTL, { x: 120, y: 80 }, '');
+
+        drawTopoCloud(svg, 730, 70, 'Jaringan B (60 User)', sB ? sB.network : '');
+        drawTopoLink(svg, rTR, { x: 670, y: 80 }, '');
+
+        drawTopoCloud(svg, 70, 390, 'Jaringan C (10 User)', sC ? sC.network : '');
+        drawTopoLink(svg, rBL, { x: 110, y: 370 }, '');
+
+        drawTopoCloud(svg, 220, 440, 'Jaringan D (50 User)', sD ? sD.network : '');
+        drawTopoLink(svg, rBL, { x: 220, y: 400 }, '');
+
+        drawTopoCloud(svg, 580, 440, 'Jaringan E (20 User)', sE ? sE.network : '');
+        drawTopoLink(svg, rBR, { x: 580, y: 400 }, '');
+
+        drawTopoCloud(svg, 730, 370, 'Jaringan F (30 User)', sF ? sF.network : '');
+        drawTopoLink(svg, rBR, { x: 680, y: 360 }, '');
+
+        [rCenter, rTL, rTR, rBL, rBR].forEach(r => drawTopoRouter(svg, r.x, r.y, r.name));
+      }
+    }
+
+    function drawTopoLink(svg, p1, p2, label) {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', p1.x);
+      line.setAttribute('y1', p1.y);
+      line.setAttribute('x2', p2.x);
+      line.setAttribute('y2', p2.y);
+      line.setAttribute('stroke', '#38bdf8');
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('stroke-dasharray', label ? 'none' : '3,3');
+      g.appendChild(line);
+
+      if (label) {
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2 - 10;
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', midX);
+        text.setAttribute('y', midY);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('fill', '#facc15');
+        text.setAttribute('font-size', '10');
+        text.setAttribute('font-weight', 'bold');
+        text.setAttribute('font-family', 'JetBrains Mono, monospace');
+        text.textContent = label;
+        g.appendChild(text);
+      }
+
+      svg.appendChild(g);
+    }
+
+    function drawTopoRouter(svg, x, y, name) {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('transform', `translate(${x}, ${y})`);
+
+      const bottom = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      bottom.setAttribute('cx', 0);
+      bottom.setAttribute('cy', 8);
+      bottom.setAttribute('rx', 28);
+      bottom.setAttribute('ry', 12);
+      bottom.setAttribute('fill', '#0284c7');
+      g.appendChild(bottom);
+
+      const top = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      top.setAttribute('cx', 0);
+      top.setAttribute('cy', 0);
+      top.setAttribute('rx', 28);
+      top.setAttribute('ry', 12);
+      top.setAttribute('fill', '#38bdf8');
+      g.appendChild(top);
+
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', 0);
+      text.setAttribute('y', 4);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-size', '12');
+      text.setAttribute('fill', '#082f49');
+      text.setAttribute('font-weight', 'bold');
+      text.textContent = '⮂ ⮃';
+      g.appendChild(text);
+
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lbl.setAttribute('x', 0);
+      lbl.setAttribute('y', 28);
+      lbl.setAttribute('text-anchor', 'middle');
+      lbl.setAttribute('font-size', '11');
+      lbl.setAttribute('font-weight', 'bold');
+      lbl.setAttribute('fill', '#e2e8f0');
+      lbl.textContent = name;
+      g.appendChild(lbl);
+
+      svg.appendChild(g);
+    }
+
+    function drawTopoCloud(svg, x, y, title, ip) {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('transform', `translate(${x}, ${y})`);
+
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', -60);
+      rect.setAttribute('y', -24);
+      rect.setAttribute('width', 120);
+      rect.setAttribute('height', 48);
+      rect.setAttribute('rx', 14);
+      rect.setAttribute('fill', '#1e293b');
+      rect.setAttribute('stroke', '#64748b');
+      rect.setAttribute('stroke-width', '1.5');
+      g.appendChild(rect);
+
+      const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t1.setAttribute('x', 0);
+      t1.setAttribute('y', -3);
+      t1.setAttribute('text-anchor', 'middle');
+      t1.setAttribute('font-size', '10.5');
+      t1.setAttribute('font-weight', 'bold');
+      t1.setAttribute('fill', '#38bdf8');
+      t1.textContent = title;
+      g.appendChild(t1);
+
+      const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t2.setAttribute('x', 0);
+      t2.setAttribute('y', 14);
+      t2.setAttribute('text-anchor', 'middle');
+      t2.setAttribute('font-size', '9.5');
+      t2.setAttribute('font-family', 'JetBrains Mono, monospace');
+      t2.setAttribute('fill', '#a7f3d0');
+      t2.textContent = ip || '-';
+      g.appendChild(t2);
+
+      svg.appendChild(g);
+    }
+
+    // Modal Inspection Logic
+    function openNodeModal(node, oct3) {
+      const modal = document.getElementById('nodeModal');
+      const sub = node.sub;
+
+      const prefix = node.prefix;
+      const offset = node.offset;
+      const size = node.size;
+      const maskLast = 256 - size;
+      const maskStr = `255.255.255.${maskLast}`;
+      const netId = `${oct3}.${offset}`;
+      const firstIp = `${oct3}.${offset + 1}`;
+      const lastIp = `${oct3}.${offset + size - 2}`;
+      const bcastIp = `${oct3}.${offset + size - 1}`;
+      const usable = size - 2;
+
+      document.getElementById('modalTitle').textContent = sub ? sub.name : `Blok Alamat /${prefix}`;
+      document.getElementById('modalSubtitle').textContent = `${netId}/${prefix} • Netmask ${maskStr}`;
+
+      document.getElementById('modalNetId').textContent = netId;
+      document.getElementById('modalMask').textContent = maskStr;
+      document.getElementById('modalPrefix').textContent = `/${prefix}`;
+      document.getElementById('modalFirstIp').textContent = firstIp;
+      document.getElementById('modalLastIp').textContent = lastIp;
+      document.getElementById('modalBcastIp').textContent = bcastIp;
+      document.getElementById('modalTotalIps').textContent = size;
+      document.getElementById('modalUsableHosts').textContent = usable;
+      document.getElementById('modalRequiredHosts').textContent = sub ? `${sub.hosts} User` : 'N/A';
+      document.getElementById('modalWastedHosts').textContent = sub ? `${usable - sub.hosts} IP` : 'N/A';
+
+      // 8 Bit Boxes
+      const bin8 = offset.toString(2).padStart(8, '0');
+      const borrowedCount = prefix - 24;
+      const bitBoxes = document.getElementById('modalBitBoxes');
+      bitBoxes.innerHTML = '';
+
+      const powers = [128, 64, 32, 16, 8, 4, 2, 1];
+      const exponents = [7, 6, 5, 4, 3, 2, 1, 0];
+      const calcTerms = [];
+
+      for (let i = 0; i < 8; i++) {
+        const bit = bin8[i];
+        const isBorrowed = i < borrowedCount;
+        if (isBorrowed) {
+          calcTerms.push(`${bit} &times; 2<sup>${exponents[i]}</sup>`);
+        }
+
+        const box = document.createElement('div');
+        box.className = `p-2 rounded-lg border ${
+          isBorrowed 
+            ? 'bg-cyan-950/60 border-cyan-500/50 text-cyan-300 font-bold' 
+            : 'bg-slate-900 border-slate-800 text-slate-500'
+        }`;
+        box.innerHTML = `
+          <span class="block text-[9px] text-slate-400 font-sans">2<sup>${exponents[i]}</sup></span>
+          <span class="text-sm font-mono-code block my-0.5">${bit}</span>
+          <span class="block text-[9px] text-slate-400 font-sans">${powers[i]}</span>
+        `;
+        bitBoxes.appendChild(box);
+      }
+
+      const borrowedBits = bin8.slice(0, borrowedCount);
+      const hostBits = bin8.slice(borrowedCount);
+      document.getElementById('modalBitFormulaSummary').innerHTML = `
+        <span class="text-cyan-400">[${borrowedBits}]</span><span class="text-slate-500">${hostBits}</span> = ${offset}
+      `;
+
+      document.getElementById('modalMathCalculation').innerHTML = `
+        Formula Perhitungan Nilai Biner Oktet ke-4:<br>
+        <span class="text-cyan-300 font-bold">${calcTerms.length ? calcTerms.join(' + ') : '0'} = ${offset}</span> &rarr; Menghasilkan IP Jaringan <span class="text-emerald-400 font-bold">${netId}/${prefix}</span>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    // Copy to clipboard helper
+    function copyText(text, msg) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(msg);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    // Event Listeners Setup
+    document.addEventListener('DOMContentLoaded', () => {
+      state.baseIp = PRESET_CONTOH.baseIp;
+      state.subnets = JSON.parse(JSON.stringify(PRESET_CONTOH.subnets));
+      state.presetName = 'contoh';
+      document.getElementById('inputBaseIp').value = state.baseIp;
+      updateUI(true);
+
+      // Preset Buttons
+      document.getElementById('btnPresetContoh').addEventListener('click', () => {
+        state.baseIp = PRESET_CONTOH.baseIp;
+        state.subnets = JSON.parse(JSON.stringify(PRESET_CONTOH.subnets));
+        state.presetName = 'contoh';
+        state.customPositions = {};
+        document.getElementById('inputBaseIp').value = state.baseIp;
+        state.zoom = 1;
+        updateUI(true);
+        showToast('Memuat Preset Contoh Modul (7 Jaringan)');
+      });
+
+      document.getElementById('btnPresetTugas').addEventListener('click', () => {
+        state.baseIp = PRESET_TUGAS.baseIp;
+        state.subnets = JSON.parse(JSON.stringify(PRESET_TUGAS.subnets));
+        state.presetName = 'tugas';
+        state.customPositions = {};
+        document.getElementById('inputBaseIp').value = state.baseIp;
+        state.zoom = 1;
+        updateUI(true);
+        showToast('Memuat Preset Tugas Modul (Jaringan A s/d J)');
+      });
+
+      document.getElementById('btnResetCustom').addEventListener('click', () => {
+        state.subnets = [
+          { id: '1', name: 'Subnet 1', hosts: 50, color: '#06b6d4' },
+          { id: '2', name: 'Subnet 2', hosts: 20, color: '#3b82f6' }
+        ];
+        state.presetName = 'custom';
+        state.customPositions = {};
+        updateUI(true);
+        showToast('Mode Kustom Diaktifkan');
+      });
+
+      // Reset Positions of Dragged Elements
+      document.getElementById('btnResetPositions').addEventListener('click', () => {
+        state.customPositions = {};
+        renderTreeSvg(state.allocatedTree.root, state.allocatedTree.oct3, false);
+        showToast('Posisi elemen dikembalikan ke otomatis!');
+      });
+
+      // Save Image Buttons (PNG & JPG)
+      document.getElementById('btnSavePng').addEventListener('click', () => {
+        exportTreeImage('png');
+      });
+      document.getElementById('btnSaveJpg').addEventListener('click', () => {
+        exportTreeImage('jpg');
+      });
+
+      // Fullscreen Toggle
+      document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
+
+      document.addEventListener('fullscreenchange', () => {
+        const iconFs = document.getElementById('iconFullscreen');
+        const textFs = document.getElementById('textFullscreen');
+        const treeContainer = document.getElementById('treeContainer');
+
+        if (document.fullscreenElement) {
+          iconFs.setAttribute('data-lucide', 'minimize');
+          textFs.textContent = 'Keluar Layar Penuh';
+          treeContainer.style.height = 'calc(100vh - 180px)';
+        } else {
+          iconFs.setAttribute('data-lucide', 'maximize');
+          textFs.textContent = 'Layar Penuh';
+          treeContainer.style.height = '540px';
+        }
+        lucide.createIcons();
+        setTimeout(centerTreeInView, 120);
+      });
+
+      // Base IP Input Change
+      document.getElementById('inputBaseIp').addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        const err = document.getElementById('ipErrorMsg');
+        const parsed = parseIp(val);
+
+        if (!parsed) {
+          err.textContent = 'Format IP tidak valid (contoh: 192.168.15.0)';
+          err.classList.remove('hidden');
+          return;
+        }
+
+        err.classList.add('hidden');
+        state.baseIp = `${parsed[0]}.${parsed[1]}.${parsed[2]}.0`;
+        updateUI(false);
+      });
+
+      // Add Subnet Form
+      document.getElementById('formAddSubnet').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('newSubnetName');
+        const hostsInput = document.getElementById('newSubnetHosts');
+        const name = nameInput.value.trim() || `Subnet ${state.subnets.length + 1}`;
+        const hosts = parseInt(hostsInput.value);
+
+        if (isNaN(hosts) || hosts <= 0 || hosts > 254) {
+          alert('Masukkan jumlah user valid antara 1 s/d 254 host');
+          return;
+        }
+
+        state.subnets.push({
+          id: Date.now().toString(),
+          name,
+          hosts,
+          color: PALETTE[state.subnets.length % PALETTE.length]
+        });
+
+        nameInput.value = '';
+        hostsInput.value = '';
+        state.presetName = 'custom';
+        updateUI(false);
+      });
+
+      // Clear All Subnets
+      document.getElementById('btnClearAll').addEventListener('click', () => {
+        if (confirm('Hapus semua daftar kebutuhan subnet?')) {
+          state.subnets = [];
+          state.presetName = 'custom';
+          state.customPositions = {};
+          updateUI(true);
+        }
+      });
+
+      // Tabs Switcher
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => {
+            b.className = 'tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200 border border-transparent';
+          });
+          btn.className = 'tab-btn active px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30';
+
+          const target = btn.getAttribute('data-tab');
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+          document.getElementById(target).classList.remove('hidden');
+
+          state.activeTab = target;
+          if (target === 'tab-tree') {
+            centerTreeInView();
+          }
+        });
+      });
+
+      // Modal Close
+      document.getElementById('btnCloseModal').addEventListener('click', () => {
+        document.getElementById('nodeModal').classList.add('hidden');
+      });
+      document.getElementById('nodeModal').addEventListener('click', (e) => {
+        if (e.target.id === 'nodeModal') {
+          document.getElementById('nodeModal').classList.add('hidden');
+        }
+      });
+
+      // Sliders for Spacing Control
+      const sliderH = document.getElementById('sliderHSpacing');
+      const sliderV = document.getElementById('sliderVSpacing');
+
+      sliderH.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        state.leafSpacing = val;
+        document.getElementById('valHSpacing').textContent = `${val}px`;
+        renderTreeSvg(state.allocatedTree.root, state.allocatedTree.oct3, false);
+      });
+
+      sliderV.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        state.levelHeight = val;
+        document.getElementById('valVSpacing').textContent = `${val}px`;
+        renderTreeSvg(state.allocatedTree.root, state.allocatedTree.oct3, false);
+      });
+
+      // Center Tree Button
+      document.getElementById('btnCenterTree').addEventListener('click', () => {
+        centerTreeInView();
+      });
+
+      // Global Mouse / Touch Move Handler for Dragging Elements & Canvas
+      const treeContainer = document.getElementById('treeContainer');
+
+      // Mouse drag on container (Canvas Panning)
+      treeContainer.addEventListener('mousedown', (e) => {
+        if (e.button !== 0 || state.draggingNode) return;
+        state.isPanningCanvas = true;
+        state.startPanX = e.clientX - state.panX;
+        state.startPanY = e.clientY - state.panY;
+        treeContainer.style.cursor = 'grabbing';
+      });
+
+      // Window Move: handles either Node Dragging OR Canvas Panning
+      window.addEventListener('mousemove', (e) => {
+        if (state.draggingNode) {
+          const node = state.draggingNode;
+          const svgPt = screenToSvgCoords(e.clientX, e.clientY);
+          const newX = svgPt.x - state.dragOffset.x;
+          const newY = svgPt.y - state.dragOffset.y;
+
+          if (Math.abs(newX - node.x) > 3 || Math.abs(newY - node.y) > 3) {
+            state.hasDraggedNode = true;
+          }
+
+          node.x = newX;
+          node.y = newY;
+          state.customPositions[node.key] = { x: newX, y: newY };
+
+          const nodeElem = state.nodeElementMap.get(node.key);
+          if (nodeElem) {
+            nodeElem.setAttribute('transform', `translate(${newX}, ${newY})`);
+          }
+
+          updateConnectedEdges(node);
+          return;
+        }
+
+        if (state.isPanningCanvas) {
+          state.panX = e.clientX - state.startPanX;
+          state.panY = e.clientY - state.startPanY;
+          applyViewTransform();
+        }
+      });
+
+      // Window Mouse Up
+      window.addEventListener('mouseup', () => {
+        if (state.draggingNode) {
+          const nodeElem = state.nodeElementMap.get(state.draggingNode.key);
+          if (nodeElem) nodeElem.classList.remove('dragging');
+          setTimeout(() => {
+            state.draggingNode = null;
+          }, 50);
+        }
+        state.isPanningCanvas = false;
+        treeContainer.style.cursor = 'default';
+      });
+
+      // Touch handlers for mobile / touchscreen
+      treeContainer.addEventListener('touchstart', (e) => {
+        if (state.draggingNode || e.touches.length !== 1) return;
+        state.isPanningCanvas = true;
+        state.startPanX = e.touches[0].clientX - state.panX;
+        state.startPanY = e.touches[0].clientY - state.panY;
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches.length !== 1) return;
+
+        if (state.draggingNode) {
+          const node = state.draggingNode;
+          const svgPt = screenToSvgCoords(e.touches[0].clientX, e.touches[0].clientY);
+          const newX = svgPt.x - state.dragOffset.x;
+          const newY = svgPt.y - state.dragOffset.y;
+
+          if (Math.abs(newX - node.x) > 3 || Math.abs(newY - node.y) > 3) {
+            state.hasDraggedNode = true;
+          }
+
+          node.x = newX;
+          node.y = newY;
+          state.customPositions[node.key] = { x: newX, y: newY };
+
+          const nodeElem = state.nodeElementMap.get(node.key);
+          if (nodeElem) {
+            nodeElem.setAttribute('transform', `translate(${newX}, ${newY})`);
+          }
+          updateConnectedEdges(node);
+          return;
+        }
+
+        if (state.isPanningCanvas) {
+          state.panX = e.touches[0].clientX - state.startPanX;
+          state.panY = e.touches[0].clientY - state.startPanY;
+          applyViewTransform();
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchend', () => {
+        if (state.draggingNode) {
+          const nodeElem = state.nodeElementMap.get(state.draggingNode.key);
+          if (nodeElem) nodeElem.classList.remove('dragging');
+          setTimeout(() => {
+            state.draggingNode = null;
+          }, 50);
+        }
+        state.isPanningCanvas = false;
+      });
+
+      // Mouse Wheel Zoom / Horizontal Scroll
+      treeContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.shiftKey) {
+          state.panX -= e.deltaY;
+          applyViewTransform();
+        } else {
+          const rect = treeContainer.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+
+          const factor = e.deltaY < 0 ? 1.12 : 0.88;
+          const newZoom = Math.min(3.0, Math.max(0.35, state.zoom * factor));
+
+          state.panX = mouseX - (mouseX - state.panX) * (newZoom / state.zoom);
+          state.panY = mouseY - (mouseY - state.panY) * (newZoom / state.zoom);
+          state.zoom = newZoom;
+          applyViewTransform();
+        }
+      });
+
+      // Keyboard Shortcut: F for Fullscreen
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === 'f' || e.key === 'F') {
+          if (state.activeTab === 'tab-tree') {
+            toggleFullscreen();
+          }
+        }
+      });
+
+      document.getElementById('btnZoomIn').addEventListener('click', () => {
+        state.zoom = Math.min(3.0, state.zoom * 1.25);
+        applyViewTransform();
+      });
+
+      document.getElementById('btnZoomOut').addEventListener('click', () => {
+        state.zoom = Math.max(0.35, state.zoom * 0.8);
+        applyViewTransform();
+      });
+
+      document.getElementById('btnResetView').addEventListener('click', () => {
+        state.zoom = 1;
+        state.leafSpacing = 150;
+        state.levelHeight = 115;
+        document.getElementById('sliderHSpacing').value = 150;
+        document.getElementById('sliderVSpacing').value = 115;
+        document.getElementById('valHSpacing').textContent = '150px';
+        document.getElementById('valVSpacing').textContent = '115px';
+        renderTreeSvg(state.allocatedTree.root, state.allocatedTree.oct3, true);
+        showToast('Zoom dan jarak dikembalikan ke default');
+      });
+
+      // Table Copy Buttons
+      document.getElementById('btnCopyMarkdown').addEventListener('click', () => {
+        const result = state.allocatedTree;
+        if (!result || !result.subnets.length) return;
+
+        let md = `| Jaringan | User Diminta | Network ID (CIDR) | Netmask | Biner Oktet 4 | Rentang Host Valid | Broadcast | Sisa IP |\n`;
+        md += `| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n`;
+
+        result.subnets.forEach(s => {
+          const bin8 = s.allocatedOffset.toString(2).padStart(8, '0');
+          const borrowed = bin8.slice(0, s.prefix - 24);
+          const host = bin8.slice(s.prefix - 24);
+          md += `| ${s.name} | ${s.hosts} User | ${s.network} | ${s.mask} | [${borrowed}]${host} | ${s.firstIp} - ${s.lastIp} | ${s.broadcast} | ${s.usable - s.hosts} IP |\n`;
+        });
+
+        copyText(md, 'Tabel berhasil disalin dalam format Markdown!');
+      });
+
+      document.getElementById('btnCopyCsv').addEventListener('click', () => {
+        const result = state.allocatedTree;
+        if (!result || !result.subnets.length) return;
+
+        let csv = `Jaringan,User Diminta,Network ID,Subnet Mask,Biner Oktet 4,Host Pertama,Host Terakhir,Broadcast,Sisa IP\n`;
+        result.subnets.forEach(s => {
+          const bin8 = s.allocatedOffset.toString(2).padStart(8, '0');
+          csv += `"${s.name}","${s.hosts}","${s.network}","${s.mask}","${bin8}","${s.firstIp}","${s.lastIp}","${s.broadcast}","${s.usable - s.hosts}"\n`;
+        });
+
+        copyText(csv, 'Tabel berhasil disalin dalam format CSV!');
+      });
+    });
+  </script>
+</body>
+</html>
