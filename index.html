@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pohon Subnetting Interaktif (Iza's Way) - Modul 7 Jaringan Komputer</title>
+  <title>Subnetting Calculate - Interactive Binary Tree VLSM Calculator</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -112,9 +112,9 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              Pohon Subnetting <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-medium">Iza's Way</span>
+              Subnetting Calculate <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-medium">Visual VLSM</span>
             </h1>
-            <span class="text-xs text-slate-400 hidden sm:inline">• Modul 7 Jarkom</span>
+            <span class="text-xs text-slate-400 hidden sm:inline">• Binary Tree Calculator</span>
           </div>
           <p class="text-xs text-slate-400">Visualisasi Hierarki Pohon Biner & Kalkulator VLSM Kelas C</p>
         </div>
@@ -122,14 +122,14 @@
 
       <!-- Quick Presets -->
       <div class="flex items-center gap-2 flex-wrap">
-        <div class="text-xs text-slate-400 font-medium mr-1 hidden md:block">Preset Modul:</div>
+        <div class="text-xs text-slate-400 font-medium mr-1 hidden md:block">Preset Topologi:</div>
         <button id="btnPresetContoh" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20 transition flex items-center gap-1.5 shadow-sm">
-          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-          <span>Contoh Modul (7 Subnet)</span>
+          <i data-lucide="network" class="w-3.5 h-3.5"></i>
+          <span>Topologi Seri (7 Subnet)</span>
         </button>
         <button id="btnPresetTugas" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/20 transition flex items-center gap-1.5 shadow-sm">
-          <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
-          <span>Tugas A-J (10 Subnet)</span>
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+          <span>Topologi Star (10 Subnet)</span>
         </button>
         <button id="btnResetCustom" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5">
           <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
@@ -190,7 +190,7 @@
               </div>
             </div>
             <p class="text-[11px] text-slate-400 leading-tight">
-              💡 <b>Catatan Modul:</b> Bagian <span class="text-cyan-300 font-medium">A.B.C</span> adalah Net ID tetap. Hanya bagian <span class="text-amber-300 font-medium">D (8 bit = 256 alamat)</span> yang dibagi oleh pohon subnetting!
+              💡 <b>Catatan Subnetting:</b> Bagian <span class="text-cyan-300 font-medium">A.B.C</span> adalah Net ID tetap. Hanya bagian <span class="text-amber-300 font-medium">D (8 bit = 256 alamat)</span> yang dibagi oleh pohon subnetting!
             </p>
           </div>
         </div>
@@ -242,11 +242,11 @@
         </div>
       </div>
 
-      <!-- Iza's Way Rules Card -->
+      <!-- Binary Tree Subnetting Rules Card -->
       <div class="bg-[#131d33] border border-slate-800 rounded-2xl p-5 shadow-xl">
         <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-3">
           <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-          4 Aturan Utama "Iza's Way"
+          4 Aturan Utama Binary Tree Subnetting
         </h2>
         <ul class="text-xs space-y-2.5 text-slate-300 leading-relaxed">
           <li class="flex items-start gap-2">
@@ -290,7 +290,7 @@
           </button>
           <button data-tab="tab-calc" class="tab-btn px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200 border border-transparent">
             <i data-lucide="binary" class="w-4 h-4"></i>
-            <span>Rumus Biner Modul</span>
+            <span>Rumus & Kalkulasi Biner</span>
           </button>
         </div>
 
@@ -464,13 +464,13 @@
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              <i data-lucide="diagram" class="w-4 h-4 text-cyan-400"></i>
-              Visualisasi Topologi Jaringan Modul 7
+              <i data-lucide="network" class="w-4 h-4 text-cyan-400"></i>
+              Visualisasi Topologi Jaringan
             </h3>
             <p class="text-xs text-slate-400" id="topologySubtitle">Diagram router dan LAN cloud interaktif</p>
           </div>
           <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-cyan-300 font-medium border border-slate-700" id="topologyPresetBadge">
-            Contoh Modul (4 Router)
+            Topologi Seri (4 Router)
           </span>
         </div>
 
@@ -491,7 +491,7 @@
         <div>
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="calculator" class="w-4 h-4 text-cyan-400"></i>
-            Rumus & Cara Menghitung Sesuai Modul 7
+            Panduan & Rumus Perhitungan Subnetting Pohon Biner
           </h3>
           <p class="text-xs text-slate-400">Penjelasan matematis detail cara kerja peminjaman bit dan pembentukan subnet</p>
         </div>
@@ -567,9 +567,9 @@
             </div>
           </div>
           <div class="p-3 bg-slate-900/80 rounded-lg text-xs space-y-1.5 font-mono-code text-slate-300">
-            <p>Contoh Modul: <span class="text-amber-400">Jar 4 (Path 010)</span> &rarr; [0 1 0] 0 0 0 0 0 = 0&times;2<sup>7</sup> + 1&times;2<sup>6</sup> + 0&times;2<sup>5</sup> = <b class="text-emerald-400">64</b> &rarr; IP: 192.168.15.64/27</p>
-            <p>Contoh Modul: <span class="text-amber-400">Jar 5 (Path 100000)</span> &rarr; [1 0 0 0 0 0] 0 0 = 1&times;2<sup>7</sup> = <b class="text-emerald-400">128</b> &rarr; IP: 192.168.15.128/30</p>
-            <p>Contoh Modul: <span class="text-amber-400">Jar 6 (Path 100001)</span> &rarr; [1 0 0 0 0 1] 0 0 = 1&times;2<sup>7</sup> + 1&times;2<sup>2</sup> = 128 + 4 = <b class="text-emerald-400">132</b> &rarr; IP: 192.168.15.132/30</p>
+            <p>Contoh: <span class="text-amber-400">Subnet 4 (Path 010)</span> &rarr; [0 1 0] 0 0 0 0 0 = 0 + 2<sup>6</sup> + 0 = <b class="text-emerald-400">64</b> &rarr; IP: 192.168.15.64/27</p>
+            <p>Contoh: <span class="text-amber-400">Subnet 5 (Path 100000)</span> &rarr; [1 0 0 0 0 0] 0 0 = 2<sup>7</sup> + 0 + 0 + 0 + 0 + 0 = <b class="text-emerald-400">128</b> &rarr; IP: 192.168.15.128/30</p>
+            <p>Contoh: <span class="text-amber-400">Subnet 6 (Path 100001)</span> &rarr; [1 0 0 0 0 1] 0 0 = 2<sup>7</sup> + 0 + 0 + 0 + 0 + 2<sup>2</sup> = 128 + 4 = <b class="text-emerald-400">132</b> &rarr; IP: 192.168.15.132/30</p>
           </div>
         </div>
 
@@ -577,7 +577,7 @@
         <div class="p-4 bg-[#0b1120] rounded-xl border border-slate-800 space-y-2">
           <div class="flex items-center gap-2 text-emerald-300 font-semibold text-xs">
             <span class="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center text-[10px]">3</span>
-            Tabel Penghematan: Tanpa Subnetting vs Dengan Subnetting (dari Modul 7)
+            Tabel Perbandingan: Tanpa Subnetting vs Subnetting VLSM
           </div>
           <div class="overflow-x-auto rounded-lg border border-slate-800 mt-2">
             <table class="w-full text-left text-xs">
@@ -644,7 +644,7 @@
 
         <!-- Formula Multiplication -->
         <div class="p-2.5 bg-slate-900 rounded-lg text-xs font-mono-code text-slate-300 border border-slate-800 leading-relaxed" id="modalMathCalculation">
-          0 &times; 2<sup>7</sup> + 0 &times; 2<sup>6</sup> + 0 &times; 2<sup>5</sup> = 0
+          0 + 0 + 0 = 0
         </div>
       </div>
 
@@ -781,7 +781,7 @@
       return { x, size, prefix, mask, usable };
     }
 
-    // Binary Tree Allocator (Iza's Way)
+    // Binary Tree Allocator
     function buildTree(baseIp, subnets) {
       const ipParts = parseIp(baseIp) || [192, 168, 15, 0];
       const oct3 = ipParts.slice(0, 3).join('.');
@@ -1393,7 +1393,7 @@
       title.setAttribute('font-size', '16');
       title.setAttribute('font-weight', 'bold');
       title.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-      title.textContent = `Hierarki Pohon Subnetting (Iza's Way) • Base IP: ${state.baseIp}/24`;
+      title.textContent = `Hierarki Pohon Subnetting • Base IP: ${state.baseIp}/24`;
       headerG.appendChild(title);
 
       const subtitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1402,7 +1402,7 @@
       subtitle.setAttribute('fill', '#64748b');
       subtitle.setAttribute('font-size', '11');
       subtitle.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-      subtitle.textContent = `Modul 7 Jaringan Komputer • Diekspor otomatis dari Aplikasi Subnetting-Calculate`;
+      subtitle.textContent = `Subnetting Calculate • Visual Binary Tree VLSM`;
       headerG.appendChild(subtitle);
 
       cloneSvg.appendChild(headerG);
@@ -1567,14 +1567,14 @@
 
       const isTugas = (state.presetName === 'tugas' || subnets.length >= 8);
       document.getElementById('topologySubtitle').textContent = isTugas 
-        ? 'Topologi Tugas Modul 7: 1 Router Pusat + 4 Router Cabang (Jaringan A s/d J)'
-        : 'Topologi Studi Kasus Modul 7: 4 Router Seri (Jaringan 1 s/d 7)';
+        ? 'Topologi Star Multi-Router: 1 Router Pusat + 4 Router Cabang (Subnet A s/d J)'
+        : 'Topologi Seri: 4 Router Seri (Subnet 1 s/d 7)';
       document.getElementById('topologyPresetBadge').textContent = isTugas 
-        ? 'Tugas Modul (10 Subnet)'
-        : 'Studi Kasus (7 Subnet)';
+        ? 'Topologi Star (10 Subnet)'
+        : 'Topologi Seri (7 Subnet)';
 
       if (!isTugas) {
-        // --- 4 ROUTER TOPOLOGY (Contoh Modul) ---
+        // --- 4 ROUTER TOPOLOGY (Serial Topology) ---
         const r1 = { x: 400, y: 110, name: 'R1 (Pusat)' };
         const r2 = { x: 180, y: 320, name: 'R2' };
         const r3 = { x: 400, y: 320, name: 'R3' };
@@ -1607,7 +1607,7 @@
         [r1, r2, r3, r4].forEach(r => drawTopoRouter(svg, r.x, r.y, r.name));
 
       } else {
-        // --- 5 ROUTER TOPOLOGY (Tugas Modul A-J) ---
+        // --- 5 ROUTER TOPOLOGY (Star Multi-Router A-J) ---
         const rCenter = { x: 400, y: 220, name: 'R-Center' };
         const rTL = { x: 220, y: 110, name: 'Router 1' };
         const rTR = { x: 580, y: 110, name: 'Router 2' };
@@ -1804,12 +1804,18 @@
       const powers = [128, 64, 32, 16, 8, 4, 2, 1];
       const exponents = [7, 6, 5, 4, 3, 2, 1, 0];
       const calcTerms = [];
+      const nonZeroPowers = [];
 
       for (let i = 0; i < 8; i++) {
         const bit = bin8[i];
         const isBorrowed = i < borrowedCount;
         if (isBorrowed) {
-          calcTerms.push(`${bit} &times; 2<sup>${exponents[i]}</sup>`);
+          if (bit === '1') {
+            calcTerms.push(`2<sup>${exponents[i]}</sup>`);
+            nonZeroPowers.push(powers[i]);
+          } else {
+            calcTerms.push('0');
+          }
         }
 
         const box = document.createElement('div');
@@ -1832,9 +1838,16 @@
         <span class="text-cyan-400">[${borrowedBits}]</span><span class="text-slate-500">${hostBits}</span> = ${offset}
       `;
 
+      let formulaStr = calcTerms.length ? calcTerms.join(' + ') : '0';
+      if (nonZeroPowers.length > 1) {
+        formulaStr += ` = ${nonZeroPowers.join(' + ')} = ${offset}`;
+      } else {
+        formulaStr += ` = ${offset}`;
+      }
+
       document.getElementById('modalMathCalculation').innerHTML = `
         Formula Perhitungan Nilai Biner Oktet ke-4:<br>
-        <span class="text-cyan-300 font-bold">${calcTerms.length ? calcTerms.join(' + ') : '0'} = ${offset}</span> &rarr; Menghasilkan IP Jaringan <span class="text-emerald-400 font-bold">${netId}/${prefix}</span>
+        <span class="text-cyan-300 font-bold">${formulaStr}</span> &rarr; Menghasilkan IP Jaringan <span class="text-emerald-400 font-bold">${netId}/${prefix}</span>
       `;
 
       modal.classList.remove('hidden');
@@ -1873,7 +1886,7 @@
         document.getElementById('inputBaseIp').value = state.baseIp;
         state.zoom = 1;
         updateUI(true);
-        showToast('Memuat Preset Contoh Modul (7 Jaringan)');
+        showToast('Memuat Preset Topologi Seri (7 Subnet)');
       });
 
       document.getElementById('btnPresetTugas').addEventListener('click', () => {
@@ -1884,7 +1897,7 @@
         document.getElementById('inputBaseIp').value = state.baseIp;
         state.zoom = 1;
         updateUI(true);
-        showToast('Memuat Preset Tugas Modul (Jaringan A s/d J)');
+        showToast('Memuat Preset Topologi Star (10 Subnet)');
       });
 
       document.getElementById('btnResetCustom').addEventListener('click', () => {

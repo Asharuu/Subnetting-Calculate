@@ -16,9 +16,8 @@ if __name__ == '__main__':
     with socketserver.TCPServer(("", PORT), Handler) as httpd:
         url = f"http://localhost:{PORT}/index.html"
         print(f"==================================================")
-        print(f" Pohon Subnetting Interaktif (Iza's Way) ")
-        print(f" Modul 7 - Jaringan Komputer (Kelas C) ")
-        print(f" Server berjalan di: {url}")
+        print(f" Subnetting Calculate - Binary Tree VLSM")
+        print(f" Web Server berjalan di: {url}")
         print(f" Tekan Ctrl+C untuk menghentikan server.")
         print(f"==================================================")
         webbrowser.open(url)
