@@ -5,6 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#)
+[![Deploy with Vercel](https://vercel.com/button)](https://subnetting-calculate.vercel.app)
 
 [English](#english) | [Bahasa Indonesia](#bahasa-indonesia)
 
@@ -14,6 +15,8 @@
 
 > **Say Goodbye to Complex Manual Subnet Calculations.**  
 > An interactive Binary Tree VLSM (*Variable Length Subnet Masking*) visualizer and calculator for Class C IPv4 networks. Design, calculate, customize, freely drag & drop nodes, and export clean hierarchical subnet trees in seconds.
+
+🔗 **Live Demo:** [https://subnetting-calculate.vercel.app](https://subnetting-calculate.vercel.app)
 
 ### 📌 What is Subnetting Calculate?
 
@@ -90,6 +93,8 @@ Because this is a 100% static client-side project, you can deploy it to **Vercel
 
 > **Selamat Tinggal Perhitungan Subnetting Manual yang Rumit.**  
 > Aplikasi visualisator dan kalkulator VLSM (*Variable Length Subnet Masking*) interaktif berbasis **Pohon Biner** untuk jaringan IPv4 Kelas C. Rancang, hitung, sesuaikan, geser elemen secara bebas (*drag & drop*), dan unduh pohon hierarki subnet dalam hitungan detik.
+
+🔗 **Demo Langsung (Live):** [https://subnetting-calculate.vercel.app](https://subnetting-calculate.vercel.app)
 
 ### 📌 Apa itu Subnetting Calculate?
 
