@@ -1,13 +1,21 @@
-# 🌐 Subnetting Calculate
+<p align="center">
+  <img src="logo.png" alt="Subnetting Calculate Logo" width="128" height="128" style="border-radius: 28px;">
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#)
-[![Deploy with Vercel](https://vercel.com/button)](https://subnetting-calculate.vercel.app)
+<h1 align="center">Subnetting Calculate</h1>
 
-[English](#english) | [Bahasa Indonesia](#bahasa-indonesia)
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><img src="https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white" alt="HTML5"></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"></a>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" alt="JavaScript"></a>
+  <a href="#"><img src="https://img.shields.io/badge/version-1.1.0-blue.svg" alt="Version"></a>
+  <a href="https://subnetting-calculate.vercel.app"><img src="https://vercel.com/button" alt="Deploy with Vercel"></a>
+</p>
+
+<p align="center">
+  <a href="#english">English</a> | <a href="#bahasa-indonesia">Bahasa Indonesia</a>
+</p>
 
 ---
 

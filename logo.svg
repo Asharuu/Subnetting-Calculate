@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1329"/>
+      <stop offset="50%" stop-color="#070c1b"/>
+      <stop offset="100%" stop-color="#050814"/>
+    </linearGradient>
+
+    <!-- Border Glow Gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#4facfe" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <!-- Radial Glows -->
+    <radialGradient id="centerGlow" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.25"/>
+      <stop offset="50%" stop-color="#6366f1" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0b1329" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Node Glow Gradients -->
+    <radialGradient id="rootGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </radialGradient>
+
+    <radialGradient id="cyanNode" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="45%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </radialGradient>
+
+    <radialGradient id="indigoNode" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ede9fe"/>
+      <stop offset="45%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </radialGradient>
+
+    <radialGradient id="emeraldNode" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ecfdf5"/>
+      <stop offset="45%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </radialGradient>
+
+    <radialGradient id="amberNode" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="45%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </radialGradient>
+
+    <radialGradient id="purpleNode" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="45%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#9333ea"/>
+    </radialGradient>
+
+    <!-- Drop Shadow Filters -->
+    <filter id="glowFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Outer Shell -->
+  <rect x="16" y="16" width="480" height="480" rx="112" ry="112" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="6"/>
+
+  <!-- Inner Ambient Glow -->
+  <rect x="20" y="20" width="472" height="472" rx="108" ry="108" fill="url(#centerGlow)"/>
+
+  <!-- Subtle Cybernetic Grid Pattern -->
+  <g opacity="0.1" stroke="#38bdf8" stroke-width="1">
+    <line x1="128" y1="64" x2="128" y2="448" stroke-dasharray="4 6"/>
+    <line x1="256" y1="64" x2="256" y2="448" stroke-dasharray="4 6"/>
+    <line x1="384" y1="64" x2="384" y2="448" stroke-dasharray="4 6"/>
+    <line x1="64" y1="128" x2="448" y2="128" stroke-dasharray="4 6"/>
+    <line x1="64" y1="256" x2="448" y2="256" stroke-dasharray="4 6"/>
+    <line x1="64" y1="384" x2="448" y2="384" stroke-dasharray="4 6"/>
+  </g>
+
+  <!-- BRANCH LINES (Glowing Binary Tree) -->
+  <g filter="url(#glowFilter)">
+    <!-- Root to Left Level 1 (Bit 0) -->
+    <path d="M 256 128 C 256 185, 160 190, 160 250" fill="none" stroke="#00f2fe" stroke-width="9" stroke-linecap="round"/>
+    
+    <!-- Root to Right Level 1 (Bit 1) -->
+    <path d="M 256 128 C 256 185, 352 190, 352 250" fill="none" stroke="#818cf8" stroke-width="9" stroke-linecap="round"/>
+
+    <!-- Left Level 1 to Subnodes (Bit 00 & 01) -->
+    <path d="M 160 250 C 160 300, 108 315, 108 375" fill="none" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+    <path d="M 160 250 C 160 300, 212 315, 212 375" fill="none" stroke="#38bdf8" stroke-width="7" stroke-linecap="round"/>
+
+    <!-- Right Level 1 to Subnodes (Bit 10 & 11) -->
+    <path d="M 352 250 C 352 300, 300 315, 300 375" fill="none" stroke="#fbbf24" stroke-width="7" stroke-linecap="round"/>
+    <path d="M 352 250 C 352 300, 404 315, 404 375" fill="none" stroke="#c084fc" stroke-width="7" stroke-linecap="round"/>
+  </g>
+
+  <!-- White Core Accent Lines -->
+  <g opacity="0.8">
+    <path d="M 256 128 C 256 185, 160 190, 160 250" fill="none" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 256 128 C 256 185, 352 190, 352 250" fill="none" stroke="#ede9fe" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 160 250 C 160 300, 108 315, 108 375" fill="none" stroke="#f0fdf4" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 160 250 C 160 300, 212 315, 212 375" fill="none" stroke="#f0f9ff" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 352 250 C 352 300, 300 315, 300 375" fill="none" stroke="#fffbeb" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 352 250 C 352 300, 404 315, 404 375" fill="none" stroke="#faf5ff" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- BIT PATH BADGES (0 and 1 Pills) -->
+  <!-- Left Bit 0 -->
+  <g transform="translate(192, 180)">
+    <rect x="-13" y="-13" width="26" height="26" rx="8" fill="#042f2e" stroke="#10b981" stroke-width="2.5" filter="url(#subtleGlow)"/>
+    <text x="0" y="5" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="14" font-weight="900" fill="#34d399" text-anchor="middle">0</text>
+  </g>
+
+  <!-- Right Bit 1 -->
+  <g transform="translate(320, 180)">
+    <rect x="-13" y="-13" width="26" height="26" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="2.5" filter="url(#subtleGlow)"/>
+    <text x="0" y="5" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="14" font-weight="900" fill="#a5b4fc" text-anchor="middle">1</text>
+  </g>
+
+  <!-- NODES -->
+  <!-- Level 2 Subnodes -->
+  <!-- Node 00 (Emerald) -->
+  <circle cx="108" cy="375" r="22" fill="#022c22" stroke="#34d399" stroke-width="3" filter="url(#subtleGlow)"/>
+  <circle cx="108" cy="375" r="14" fill="url(#emeraldNode)"/>
+  
+  <!-- Node 01 (Cyan) -->
+  <circle cx="212" cy="375" r="22" fill="#082f49" stroke="#38bdf8" stroke-width="3" filter="url(#subtleGlow)"/>
+  <circle cx="212" cy="375" r="14" fill="url(#cyanNode)"/>
+
+  <!-- Node 10 (Amber) -->
+  <circle cx="300" cy="375" r="22" fill="#451a03" stroke="#fbbf24" stroke-width="3" filter="url(#subtleGlow)"/>
+  <circle cx="300" cy="375" r="14" fill="url(#amberNode)"/>
+
+  <!-- Node 11 (Purple) -->
+  <circle cx="404" cy="375" r="22" fill="#3b0764" stroke="#c084fc" stroke-width="3" filter="url(#subtleGlow)"/>
+  <circle cx="404" cy="375" r="14" fill="url(#purpleNode)"/>
+
+  <!-- Level 1 Nodes -->
+  <!-- Left Node (/25 - 0) -->
+  <circle cx="160" cy="250" r="30" fill="#082f49" stroke="#00f2fe" stroke-width="4" filter="url(#glowFilter)"/>
+  <circle cx="160" cy="250" r="19" fill="url(#cyanNode)"/>
+
+  <!-- Right Node (/25 - 1) -->
+  <circle cx="352" cy="250" r="30" fill="#1e1b4b" stroke="#818cf8" stroke-width="4" filter="url(#glowFilter)"/>
+  <circle cx="352" cy="250" r="19" fill="url(#indigoNode)"/>
+
+  <!-- Root Node (/24 Base) -->
+  <circle cx="256" cy="128" r="42" fill="#0c4a6e" stroke="#00f2fe" stroke-width="5" filter="url(#glowFilter)"/>
+  <circle cx="256" cy="128" r="27" fill="url(#rootGlow)"/>
+  <circle cx="256" cy="128" r="14" fill="#ffffff" filter="url(#subtleGlow)"/>
+
+  <!-- Bottom Tech Badge Label -->
+  <g transform="translate(256, 438)">
+    <rect x="-105" y="-16" width="210" height="32" rx="16" fill="#091328" stroke="url(#borderGrad)" stroke-width="1.5"/>
+    <text x="0" y="5" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="2.5" fill="#38bdf8" text-anchor="middle">SUBNETTING</text>
+  </g>
+</svg>
