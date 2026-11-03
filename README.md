@@ -17,6 +17,10 @@
   <a href="#english">English</a> | <a href="#bahasa-indonesia">Bahasa Indonesia</a>
 </p>
 
+<p align="center">
+  <img src="og-image.png" alt="Subnetting Calculate Banner" width="100%" style="border-radius: 16px; margin: 16px 0;">
+</p>
+
 ---
 
 ## English
